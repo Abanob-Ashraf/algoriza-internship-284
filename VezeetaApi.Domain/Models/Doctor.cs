@@ -33,7 +33,7 @@ namespace VezeetaApi.Domain.Models
 
         public string DocEmail { get; set; }
 
-        //public string? DocPassword { get; set; }
+        public string? DocPassword { get; set; }
 
         public int SpecializationId { get; set; }
 

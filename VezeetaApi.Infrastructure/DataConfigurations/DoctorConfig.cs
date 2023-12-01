@@ -48,6 +48,11 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsRequired(true)
                 .IsUnicode(false);
 
+            entity.Property(e=> e.DocPassword)
+                .HasColumnType("varchar(max)")
+                .IsRequired(false)
+                .IsUnicode(false);
+
             entity.HasOne(e => e.SpecializationIdNavigation)
                 .WithMany(e => e.Doctors)
                 .HasForeignKey(e => e.SpecializationId)
