@@ -9,7 +9,7 @@ namespace VezeetaApi.Domain.Models
 {
     public class Discount : BaseEntity<int>
     {
-        public string DiscountCode { get; set; }
+        public string DiscountCode { get; set; } = null!;
 
         public int NumOfCompletedRequests { get; set; }
 

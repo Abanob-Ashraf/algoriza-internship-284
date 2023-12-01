@@ -11,6 +11,6 @@ namespace VezeetaApi.Domain.Dtos
     {
         [JsonIgnore]
         public int Id { get; set; }
-        public string SpecializationName { get; set; }
+        public string SpecializationName { get; set; } = null!;
     }
 }

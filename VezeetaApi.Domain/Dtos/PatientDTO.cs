@@ -15,9 +15,9 @@ namespace VezeetaApi.Domain.Dtos
 
         public string? PatientImage { get; set; }
 
-        public string PatientFirstName { get; set; }
+        public string PatientFirstName { get; set; } = null!;
 
-        public string PatientLastName { get; set; }
+        public string PatientLastName { get; set; } = null!;
 
         public DateTime? PatientBirthDate { get; set; }
 

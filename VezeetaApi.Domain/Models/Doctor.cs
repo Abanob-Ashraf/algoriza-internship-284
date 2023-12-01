@@ -11,7 +11,7 @@ namespace VezeetaApi.Domain.Models
 {
     public class Doctor : BaseEntity<int>
     {
-        public string DocImage { get; set; }
+        public string DocImage { get; set; } = null!;
 
         [NotMapped]
         public string DoctorFullName
@@ -19,9 +19,9 @@ namespace VezeetaApi.Domain.Models
             get { return $"{DocFirstName} {DocLastName}"; }
         }
 
-        public string DocFirstName { get; set; }
+        public string DocFirstName { get; set; } = null!;
 
-        public string DocLastName { get; set; }
+        public string DocLastName { get; set; } = null!;
 
         public DateTime DocBirthDate { get; set; }
 
@@ -29,11 +29,11 @@ namespace VezeetaApi.Domain.Models
 
         [RegularExpression(@"^(010|011|012|015)\d{8}$", ErrorMessage = "start with 010 | 011 | 012 | 015 and max 11 Diget")]
         [MaxLength(11)]
-        public string DocPhone { get; set; }
+        public string DocPhone { get; set; } = null!;
 
-        public string DocEmail { get; set; }
+        public string DocEmail { get; set; } = null!;
 
-        public string? DocPassword { get; set; }
+        public string DocPassword { get; set; } = null!;
 
         public int SpecializationId { get; set; }
 

@@ -13,19 +13,21 @@ namespace VezeetaApi.Domain.Dtos
         [JsonIgnore]
         public int Id { get; set; }
 
-        public string DocFirstName { get; set; }
+        public string DocImage { get; set; } = null!;
 
-        public string DocLastName { get; set; }
+        public string DocFirstName { get; set; } = null!;
+
+        public string DocLastName { get; set; } = null!;
 
         public DateTime DocBirthDate { get; set; }
 
         public Gender DocGender { get; set; }
 
-        public string DocPhone { get; set; }
+        public string DocPhone { get; set; } = null!;
 
-        public string DocEmail { get; set; }
+        public string DocEmail { get; set; } = null!;
 
-        public string? DocPassword { get; set; }
+        public string DocPassword { get; set; } = null!;
 
         public int SpecializationId { get; set; }
     }

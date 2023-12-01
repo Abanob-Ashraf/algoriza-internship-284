@@ -20,9 +20,9 @@ namespace VezeetaApi.Domain.Models
             get { return $"{PatientFirstName} {PatientLastName}"; }
         }
 
-        public string PatientFirstName { get; set; }
+        public string PatientFirstName { get; set; } = null!;
 
-        public string PatientLastName { get; set; }
+        public string PatientLastName { get; set; } = null!;
 
         //[CustomMaxDate]
         public DateTime? PatientBirthDate { get; set; }
