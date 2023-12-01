@@ -21,4 +21,8 @@
     <ProjectReference Include="..\VezeetaApi.Domain\VezeetaApi.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RepoServices\" />
+  </ItemGroup>
+
 </Project>
