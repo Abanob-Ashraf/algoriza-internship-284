@@ -26,4 +26,3 @@ namespace VezeetaApi.Domain.Models
         Value = 1,
     }
 }
-}
