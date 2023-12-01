@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
 using VezeetaApi.Infrastructure.DataConfigurations;
+using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi.Infrastructure.Data
 {
