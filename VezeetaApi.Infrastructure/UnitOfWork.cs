@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Interfaces;
 using VezeetaApi.Infrastructure.Data;
+using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi.Infrastructure
 {
