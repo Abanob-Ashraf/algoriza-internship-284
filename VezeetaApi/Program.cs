@@ -1,5 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using VezeetaApi.Domain;
+using VezeetaApi.Domain.Interfaces;
+using VezeetaApi.Infrastructure;
+using VezeetaApi.Infrastructure.AutoMapperConfig;
 using VezeetaApi.Infrastructure.Data;
+using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi
 {
@@ -18,6 +24,15 @@ namespace VezeetaApi
 
             builder.Services.AddDbContext<VezeetaDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+            builder.Services.AddCors(corsOption =>
+            corsOption.AddPolicy("MyPolicy", corsPolicyBuilder =>
+            corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+            ));
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+
+            builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(MapperProfile)));
 
             var app = builder.Build();
 
@@ -30,6 +45,7 @@ namespace VezeetaApi
 
             app.UseHttpsRedirection();
 
+            app.UseCors("MyPolicy");
             app.UseAuthorization();
 
 
