@@ -13,9 +13,10 @@ namespace VezeetaApi.Infrastructure.AutoMapperConfig
     {
         public MapperProfile()
         {
-            CreateMap<DoctorSpecializion, DoctorSpecializionDTO>()
+            CreateMap<DoctorSpecializionDTO, DoctorSpecializion>()
                 .ForMember(dist => dist.Id, src => src.MapFrom(src => src.Id))
                 .ForMember(dist => dist.SpecializationName, src => src.MapFrom(src => src.SpecializationName))
+                .ForMember(dist => dist.Doctors, src => src.Ignore())
                 .ReverseMap();
 
             CreateMap<DoctorDTO, Doctor>()
