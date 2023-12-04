@@ -10,8 +10,9 @@ namespace VezeetaApi.Domain.Dtos
 {
     public class DiscountDTO
     {
-        [JsonIgnore]
         public int Id { get; set; }
+
+        public string DiscountCode { get; set; } = null!;
 
         public int NumOfCompletedRequests { get; set; }
 

@@ -10,7 +10,6 @@ namespace VezeetaApi.Domain.Dtos
 {
     public class DoctorScheduleDTO
     {
-        [JsonIgnore]
         public int Id { get; set; }
 
         public double Amount { get; set; }

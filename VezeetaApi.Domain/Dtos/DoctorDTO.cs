@@ -10,7 +10,6 @@ namespace VezeetaApi.Domain.Dtos
 {
     public class DoctorDTO
     {
-        [JsonIgnore]
         public int Id { get; set; }
 
         public string DocImage { get; set; } = null!;

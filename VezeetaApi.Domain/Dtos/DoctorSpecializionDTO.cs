@@ -9,7 +9,7 @@ namespace VezeetaApi.Domain.Dtos
 {
     public class DoctorSpecializionDTO
     {
-        [JsonIgnore]
+        //[JsonIgnore]
         public int Id { get; set; }
         public string SpecializationName { get; set; } = null!;
     }

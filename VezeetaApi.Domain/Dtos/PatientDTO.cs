@@ -10,7 +10,6 @@ namespace VezeetaApi.Domain.Dtos
 {
     public class PatientDTO
     {
-        [JsonIgnore]
         public int Id { get; set; }
 
         public string? PatientImage { get; set; }

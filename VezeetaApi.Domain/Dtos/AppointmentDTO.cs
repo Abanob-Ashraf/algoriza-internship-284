@@ -10,7 +10,6 @@ namespace VezeetaApi.Domain.Dtos
 {
     public class AppointmentDTO
     {
-        [JsonIgnore]
         public int Id { get; set; }
 
         public DateTime ResevationDate { get; set; }
