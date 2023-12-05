@@ -45,9 +45,9 @@ namespace VezeetaApi.Infrastructure.Data
                 {
                     var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType);
                     entityTypeBuilder.HasKey("Id");
-                    entityTypeBuilder.Property("CreatedDate").HasDefaultValueSql("GETDATE()");
-                    entityTypeBuilder.Property("UpdatedDate").HasDefaultValueSql("GETDATE()").ValueGeneratedOnUpdate();
-                    entityTypeBuilder.Property("IsDeleted").IsRequired(true).HasDefaultValueSql("0");
+                    entityTypeBuilder.Property("CreatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
+                    entityTypeBuilder.Property("UpdatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
+                    entityTypeBuilder.Property("IsDeleted").IsRequired(true);
                 }
             }
             new DoctorSpecializionConfig().Configure(modelBuilder.Entity<DoctorSpecializion>());
@@ -61,7 +61,64 @@ namespace VezeetaApi.Infrastructure.Data
             new PatientConfig().Configure(modelBuilder.Entity<Patient>());
 
             new AppointmentConfig().Configure(modelBuilder.Entity<Appointment>());
-
         }
+
+        //public override int SaveChanges()
+        //{
+        //    var entries = ChangeTracker
+        //        .Entries()
+        //        .Where(e => e.Entity.GetType().BaseType != null
+        //            && e.Entity.GetType().BaseType.IsGenericType
+        //            && e.Entity.GetType().BaseType.GetGenericTypeDefinition() == typeof(BaseEntity<>)
+        //            && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        //    foreach (var entityEntry in entries)
+        //    {
+        //        // Get the actual type of the entity
+        //        var entityType = entityEntry.Entity.GetType();
+        //        // Get the PropertyInfo of UpdatedDate
+        //        var updatedDateProperty = entityType.GetProperty("UpdatedDate");
+        //        // Set the value of UpdatedDate
+        //        updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+
+        //        if (entityEntry.State == EntityState.Added)
+        //        {
+        //            // Get the PropertyInfo of CreatedDate
+        //            var createdDateProperty = entityType.GetProperty("CreatedDate");
+        //            // Set the value of CreatedDate
+        //            createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+        //        }
+        //    }
+        //    return base.SaveChanges();
+        //}
+
+        //public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        //{
+        //    var entries = ChangeTracker
+        //        .Entries()
+        //        .Where(e => e.Entity.GetType().BaseType != null
+        //            && e.Entity.GetType().BaseType.IsGenericType
+        //            && e.Entity.GetType().BaseType.GetGenericTypeDefinition() == typeof(BaseEntity<>)
+        //            && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        //    foreach (var entityEntry in entries)
+        //    {
+        //        // Get the actual type of the entity
+        //        var entityType = entityEntry.Entity.GetType();
+        //        // Get the PropertyInfo of UpdatedDate
+        //        var updatedDateProperty = entityType.GetProperty("UpdatedDate");
+        //        // Set the value of UpdatedDate
+        //        updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+
+        //        if (entityEntry.State == EntityState.Added)
+        //        {
+        //            // Get the PropertyInfo of CreatedDate
+        //            var createdDateProperty = entityType.GetProperty("CreatedDate");
+        //            // Set the value of CreatedDate
+        //            createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+        //        }
+        //    }
+        //    return base.SaveChangesAsync(cancellationToken);
+        //}
     }
 }
