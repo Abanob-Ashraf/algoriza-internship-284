@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VezeetaApi.Domain;
+using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Interfaces;
 using VezeetaApi.Infrastructure.Data;
 using VezeetaApi.Infrastructure.Repositories;
@@ -13,7 +9,7 @@ namespace VezeetaApi.Infrastructure
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private readonly VezeetaDbContext DbContext;
+        readonly VezeetaDbContext DbContext;
         private Dictionary<Type, object> Repositories;
 
         public UnitOfWork(VezeetaDbContext dbContext)
@@ -37,15 +33,38 @@ namespace VezeetaApi.Infrastructure
             return repo;
         }
 
-        public void SaveChanges()
+        public async Task<int> SaveChangesAsync()
         {
-            DbContext.SaveChanges();
+            var entries = DbContext.ChangeTracker
+                .Entries()
+                .Where(e => e.Entity.GetType().BaseType != null
+                    && e.Entity.GetType().BaseType.IsGenericType
+                    && e.Entity.GetType().BaseType.GetGenericTypeDefinition() == typeof(BaseEntity<>)
+                    && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                // Get the actual type of the entity
+                var entityType = entityEntry.Entity.GetType();
+                // Get the PropertyInfo of UpdatedDate
+                var updatedDateProperty = entityType.GetProperty("UpdatedDate");
+                // Set the value of UpdatedDate
+                updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    // Get the PropertyInfo of CreatedDate
+                    var createdDateProperty = entityType.GetProperty("CreatedDate");
+                    // Set the value of CreatedDate
+                    createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+                }
+            }
+            return await DbContext.SaveChangesAsync();
         }
 
         public void Dispose()
         {
             DbContext.Dispose();
-            Repositories = null;
         }
     }
 }
