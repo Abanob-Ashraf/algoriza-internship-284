@@ -63,62 +63,45 @@ namespace VezeetaApi.Infrastructure.Data
             new AppointmentConfig().Configure(modelBuilder.Entity<Appointment>());
         }
 
-        //public override int SaveChanges()
-        //{
-        //    var entries = ChangeTracker
-        //        .Entries()
-        //        .Where(e => e.Entity.GetType().BaseType != null
-        //            && e.Entity.GetType().BaseType.IsGenericType
-        //            && e.Entity.GetType().BaseType.GetGenericTypeDefinition() == typeof(BaseEntity<>)
-        //            && (e.State == EntityState.Added || e.State == EntityState.Modified));
+        public static bool IsSubclassOfRawGeneric(Type genericBase, Type derivedType)
+        {
+            Type currentType = derivedType;
 
-        //    foreach (var entityEntry in entries)
-        //    {
-        //        // Get the actual type of the entity
-        //        var entityType = entityEntry.Entity.GetType();
-        //        // Get the PropertyInfo of UpdatedDate
-        //        var updatedDateProperty = entityType.GetProperty("UpdatedDate");
-        //        // Set the value of UpdatedDate
-        //        updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+            while (currentType != null && currentType != typeof(object))
+            {
+                Type currentGenericType = currentType.IsGenericType ? currentType.GetGenericTypeDefinition() : currentType;
+                if (genericBase == currentGenericType)
+                {
+                    return true;
+                }
+                currentType = currentType.BaseType;
+            }
+            return false;
+        }
 
-        //        if (entityEntry.State == EntityState.Added)
-        //        {
-        //            // Get the PropertyInfo of CreatedDate
-        //            var createdDateProperty = entityType.GetProperty("CreatedDate");
-        //            // Set the value of CreatedDate
-        //            createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
-        //        }
-        //    }
-        //    return base.SaveChanges();
-        //}
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var entries = ChangeTracker
+               .Entries()
+               .Where(e => IsSubclassOfRawGeneric(typeof(BaseEntity<>), e.Entity.GetType())
+                   && (e.State == EntityState.Added || e.State == EntityState.Modified));
 
-        //public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        //{
-        //    var entries = ChangeTracker
-        //        .Entries()
-        //        .Where(e => e.Entity.GetType().BaseType != null
-        //            && e.Entity.GetType().BaseType.IsGenericType
-        //            && e.Entity.GetType().BaseType.GetGenericTypeDefinition() == typeof(BaseEntity<>)
-        //            && (e.State == EntityState.Added || e.State == EntityState.Modified));
+            foreach (var entityEntry in entries)
+            {
+                var entityType = entityEntry.Entity.GetType();
 
-        //    foreach (var entityEntry in entries)
-        //    {
-        //        // Get the actual type of the entity
-        //        var entityType = entityEntry.Entity.GetType();
-        //        // Get the PropertyInfo of UpdatedDate
-        //        var updatedDateProperty = entityType.GetProperty("UpdatedDate");
-        //        // Set the value of UpdatedDate
-        //        updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+                var updatedDateProperty = entityType.GetProperty("UpdatedDate");
 
-        //        if (entityEntry.State == EntityState.Added)
-        //        {
-        //            // Get the PropertyInfo of CreatedDate
-        //            var createdDateProperty = entityType.GetProperty("CreatedDate");
-        //            // Set the value of CreatedDate
-        //            createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
-        //        }
-        //    }
-        //    return base.SaveChangesAsync(cancellationToken);
-        //}
+                updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    var createdDateProperty = entityType.GetProperty("CreatedDate");
+
+                    createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+                }
+            }
+            return base.SaveChangesAsync(cancellationToken);
+        }
     }
 }
