@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
@@ -44,7 +45,7 @@ namespace VezeetaApi.Controllers
         {
             var newDocSpec = Mapper.Map<DoctorSpecializion>(doctorSpecializionDTO);
             await UnitOfWork.GetRepository<DoctorSpecializion>().AddAsync(newDocSpec);
-            await UnitOfWork.SaveChanges();
+            await UnitOfWork.SaveChangesAsync();
             return Ok();
         }
 
@@ -61,7 +62,8 @@ namespace VezeetaApi.Controllers
             docSpec.SpecializationName = doctorSpecializionDTO.SpecializationName;
 
             UnitOfWork.GetRepository<DoctorSpecializion>().Update(docSpec);
-            await UnitOfWork.SaveChanges();
+            
+            await UnitOfWork.SaveChangesAsync();
 
             return Ok(docSpec);
         }
@@ -74,7 +76,7 @@ namespace VezeetaApi.Controllers
             if (docSpec is null)
                 return NotFound();
 
-            await UnitOfWork.SaveChanges();
+            await UnitOfWork.SaveChangesAsync();
             return Ok(docSpec);
         }
 
