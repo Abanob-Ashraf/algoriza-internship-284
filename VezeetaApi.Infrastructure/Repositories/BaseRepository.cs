@@ -61,8 +61,8 @@ namespace VezeetaApi.Infrastructure.Repositories
 
         public void Update(T entity)
         {
-            DbSet.Attach(entity);
-            DbContext.Entry(entity).State = EntityState.Modified;
+            DbSet.Update(entity);
+            //DbContext.Entry(entity).State = EntityState.Modified;
         }
 
         public T Delete(int id)
