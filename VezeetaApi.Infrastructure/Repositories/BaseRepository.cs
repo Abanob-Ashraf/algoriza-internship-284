@@ -12,31 +12,33 @@ namespace VezeetaApi.Infrastructure.Repositories
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        private readonly VezeetaDbContext DbContext;
+        readonly VezeetaDbContext DbContext;
+        private readonly DbSet<T> DbSet;
 
         public BaseRepository(VezeetaDbContext dbContext)
         {
             DbContext = dbContext;
+            DbSet = DbContext.Set<T>();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await DbContext.Set<T>().ToListAsync();
+            return await DbSet.ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
-            return await DbContext.Set<T>().FindAsync(id);
+            return await DbSet.FindAsync(id);
         }
 
         public async Task<T> FindAsync(Expression<Func<T, bool>> criteria)
         {
-            return await DbContext.Set<T>().SingleOrDefaultAsync(criteria);
+            return await DbSet.SingleOrDefaultAsync(criteria);
         }
 
         public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
         {
-            IQueryable<T> query = DbContext.Set<T>();
+            IQueryable<T> query = DbSet;
 
             if (includes != null)
                 foreach (var include in includes)
@@ -47,32 +49,33 @@ namespace VezeetaApi.Infrastructure.Repositories
 
         public async Task<T> AddAsync(T entity)
         {
-            await DbContext.Set<T>().AddAsync(entity);
+            await DbSet.AddAsync(entity);
             return entity;
         }
 
         public async Task<IEnumerable<T>> AddRangeAsync(IEnumerable<T> entities)
         {
-            await DbContext.Set<T>().AddRangeAsync(entities);
+            await DbSet.AddRangeAsync(entities);
             return entities;
         }
 
         public void Update(T entity)
         {
-            DbContext.Set<T>().Update(entity);
+            DbSet.Attach(entity);
+            DbContext.Entry(entity).State = EntityState.Modified;
         }
 
         public T Delete(int id)
         {
-            var entity = DbContext.Set<T>().Find(id);
+            var entity = DbSet.Find(id);
             if (entity is not null)
-                DbContext.Set<T>().Remove(entity);
+                DbSet.Remove(entity);
             return entity;
         }
 
         public void DeleteRange(IEnumerable<T> entities)
         {
-            DbContext.Set<T>().RemoveRange(entities);
+            DbSet.RemoveRange(entities);
         }
     }
 }
