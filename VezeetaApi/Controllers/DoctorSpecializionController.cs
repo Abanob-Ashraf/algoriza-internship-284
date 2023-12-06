@@ -22,28 +22,28 @@ namespace VezeetaApi.Controllers
         [HttpGet("GetAllSpecializions")]
         public async Task<IActionResult> GetAllAsync()
         {
-            var docSpecs = await UnitOfWork.GetRepository<DoctorSpecializion>().GetAllAsync();
-            if (docSpecs is null)
+            var doctorSpecializions = await UnitOfWork.GetRepository<DoctorSpecializion>().GetAllAsync();
+            if (doctorSpecializions is null)
                 return NotFound();
-            var result = Mapper.Map<IEnumerable<DoctorSpecializionDTO>>(docSpecs);
+            var result = Mapper.Map<IEnumerable<DoctorSpecializionDTO>>(doctorSpecializions);
             return Ok(result);
         }
 
         [HttpGet("Specializion/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var oneDocSpec = await UnitOfWork.GetRepository<DoctorSpecializion>().GetByIdAsync(id);
-            if (oneDocSpec is null) 
+            var doctorSpecializion = await UnitOfWork.GetRepository<DoctorSpecializion>().GetByIdAsync(id);
+            if (doctorSpecializion is null) 
                 return NotFound();
-            var result = Mapper.Map<DoctorSpecializionDTO>(oneDocSpec);
+            var result = Mapper.Map<DoctorSpecializionDTO>(doctorSpecializion);
             return Ok(result);
         }
 
         [HttpPost("AddNewSpecializion")]
         public async Task<IActionResult> AddAsync(DoctorSpecializionDTO doctorSpecializionDTO)
         {
-            var newDocSpec = Mapper.Map<DoctorSpecializion>(doctorSpecializionDTO);
-            await UnitOfWork.GetRepository<DoctorSpecializion>().AddAsync(newDocSpec);
+            var newDoctorSpecializion = Mapper.Map<DoctorSpecializion>(doctorSpecializionDTO);
+            await UnitOfWork.GetRepository<DoctorSpecializion>().AddAsync(newDoctorSpecializion);
             await UnitOfWork.SaveChangesAsync();
             return Ok();
         }
@@ -51,32 +51,45 @@ namespace VezeetaApi.Controllers
         [HttpPut("UpdateSpecializion")]
         public async Task<IActionResult> UpdateAsync(DoctorSpecializionDTO doctorSpecializionDTO)
         {
-            var docSpec = await UnitOfWork.GetRepository<DoctorSpecializion>().FindAsync(c => c.Id == doctorSpecializionDTO.Id);
+            var doctorSpecializion = await UnitOfWork.GetRepository<DoctorSpecializion>().FindAsync(c => c.Id == doctorSpecializionDTO.Id);
 
-            if(docSpec is null)
+            if(doctorSpecializion is null)
                 return NotFound(doctorSpecializionDTO);
 
-            docSpec.SpecializationName = doctorSpecializionDTO.SpecializationName;
+            doctorSpecializion.SpecializationName = doctorSpecializionDTO.SpecializationName;
 
-            UnitOfWork.GetRepository<DoctorSpecializion>().Update(docSpec);
+            UnitOfWork.GetRepository<DoctorSpecializion>().Update(doctorSpecializion);
             
             await UnitOfWork.SaveChangesAsync();
 
-            var result = Mapper.Map<DoctorSpecializionDTO>(docSpec);
+            var result = Mapper.Map<DoctorSpecializionDTO>(doctorSpecializion);
             return Ok(result);
+        }
+
+        [HttpPut("DeActiveAndActive/{id}")]
+        public async Task<IActionResult> DeActiveAndActiveAsync(int id)
+        {
+            var doctorSpecializion = await UnitOfWork.GetRepository<DoctorSpecializion>().FindAsync(c => c.Id == id);
+
+            if (doctorSpecializion is null)
+                return NotFound();
+
+            UnitOfWork.GetRepository<DoctorSpecializion>().DeActiveAndActive(doctorSpecializion);
+            await UnitOfWork.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpDelete("DeleteSpecializion")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var docSpec = UnitOfWork.GetRepository<DoctorSpecializion>().Delete(id);
+            var doctorSpecializion = UnitOfWork.GetRepository<DoctorSpecializion>().Delete(id);
 
-            if (docSpec is null)
+            if (doctorSpecializion is null)
                 return NotFound();
 
             await UnitOfWork.SaveChangesAsync();
 
-            var result = Mapper.Map<DoctorSpecializionDTO>(docSpec);
+            var result = Mapper.Map<DoctorSpecializionDTO>(doctorSpecializion);
             return Ok(result);
         }
 

@@ -32,10 +32,10 @@ namespace VezeetaApi.Controllers
         [HttpGet("GetDoctor/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var oneDoctor = await UnitOfWork.GetRepository<Doctor>().GetByIdAsync(id);
-            if (oneDoctor is null)
+            var doctor = await UnitOfWork.GetRepository<Doctor>().GetByIdAsync(id);
+            if (doctor is null)
                 return NotFound();
-            var result = Mapper.Map<DoctorDTO>(oneDoctor);
+            var result = Mapper.Map<DoctorDTO>(doctor);
             return Ok(result);
         }
 
@@ -72,6 +72,19 @@ namespace VezeetaApi.Controllers
 
             var result = Mapper.Map<DoctorDTO>(doctor);
             return Ok(result);
+        }
+
+        [HttpPut("DeActiveAndActive/{id}")]
+        public async Task<IActionResult> DeActiveAndActiveAsync(int id)
+        {
+            var doctor = await UnitOfWork.GetRepository<Doctor>().FindAsync(c => c.Id == id);
+
+            if (doctor is null)
+                return NotFound();
+
+            UnitOfWork.GetRepository<Doctor>().DeActiveAndActive(doctor);
+            await UnitOfWork.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpDelete("DeleteDoctor")]

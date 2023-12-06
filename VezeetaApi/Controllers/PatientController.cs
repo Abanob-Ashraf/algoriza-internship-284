@@ -32,10 +32,10 @@ namespace VezeetaApi.Controllers
         [HttpGet("GetPatient/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var onePatient = await UnitOfWork.GetRepository<Patient>().GetByIdAsync(id);
-            if (onePatient is null)
+            var patient = await UnitOfWork.GetRepository<Patient>().GetByIdAsync(id);
+            if (patient is null)
                 return NotFound();
-            var result = Mapper.Map<PatientDTO>(onePatient);
+            var result = Mapper.Map<PatientDTO>(patient);
             return Ok(result);
         }
 

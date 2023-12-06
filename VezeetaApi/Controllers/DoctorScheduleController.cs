@@ -70,6 +70,19 @@ namespace VezeetaApi.Controllers
             return Ok(result);
         }
 
+        [HttpPut("DeActiveAndActive/{id}")]
+        public async Task<IActionResult> DeActiveAndActiveAsync(int id)
+        {
+            var doctorSchedule = await UnitOfWork.GetRepository<DoctorSchedule>().FindAsync(c => c.Id == id);
+
+            if (doctorSchedule is null)
+                return NotFound();
+
+            UnitOfWork.GetRepository<DoctorSchedule>().DeActiveAndActive(doctorSchedule);
+            await UnitOfWork.SaveChangesAsync();
+            return Ok();
+        }
+
         [HttpDelete("DeleteDoctorSchedule")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
