@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using VezeetaApi.Domain.Dtos;
 
 namespace VezeetaApi.Domain.Interfaces
 {
@@ -26,5 +27,7 @@ namespace VezeetaApi.Domain.Interfaces
         T Delete(int id);
 
         void DeleteRange(IEnumerable<T> entities);
+
+        void DeActiveAndActive(BaseEntity<T> entity);
     }
 }

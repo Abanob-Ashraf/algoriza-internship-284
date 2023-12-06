@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Interfaces;
 using VezeetaApi.Infrastructure.Data;
 
@@ -76,6 +77,12 @@ namespace VezeetaApi.Infrastructure.Repositories
         public void DeleteRange(IEnumerable<T> entities)
         {
             DbSet.RemoveRange(entities);
+        }
+
+        public void DeActiveAndActive(BaseEntity<T> entity)
+        {
+            //entity.IsActive = entity.IsActive ? false : true;
+            entity.IsActive = !entity.IsActive;
         }
     }
 }
