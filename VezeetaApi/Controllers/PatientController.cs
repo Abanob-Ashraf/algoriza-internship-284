@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
@@ -72,6 +71,19 @@ namespace VezeetaApi.Controllers
 
             var result = Mapper.Map<PatientDTO>(patient);
             return Ok(result);
+        }
+
+        [HttpPut("DeActiveAndActive/{id}")]
+        public async Task<IActionResult> DeActiveAndActiveAsync(int id)
+        {
+            var patient = await UnitOfWork.GetRepository<Patient>().FindAsync(c => c.Id == id);
+
+            if (patient is null)
+                return NotFound();
+
+            UnitOfWork.GetRepository<Patient>().DeActiveAndActive(patient);
+            await UnitOfWork.SaveChangesAsync();
+            return Ok();
         }
 
         [HttpDelete("DeletePatient")]
