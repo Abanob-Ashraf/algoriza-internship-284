@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using VezeetaApi.Domain.Interfaces;
 
 namespace VezeetaApi.Domain.Dtos
 {
-    public class BaseEntity<T>
+    public class BaseEntity<T> : IActivatable
     {
         public T Id { get; set; }
 
