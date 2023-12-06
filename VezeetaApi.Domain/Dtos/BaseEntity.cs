@@ -14,6 +14,6 @@ namespace VezeetaApi.Domain.Dtos
 
         public DateTime UpdatedDate { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public bool IsActive { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace VezeetaApi.Infrastructure.Data
                     entityTypeBuilder.HasKey("Id");
                     entityTypeBuilder.Property("CreatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
                     entityTypeBuilder.Property("UpdatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
-                    entityTypeBuilder.Property("IsDeleted").IsRequired(true);
+                    entityTypeBuilder.Property("IsActive").IsRequired(true);
                 }
             }
             new DoctorSpecializionConfig().Configure(modelBuilder.Entity<DoctorSpecializion>());
