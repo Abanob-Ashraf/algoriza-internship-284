@@ -1,7 +1,5 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
@@ -27,7 +25,8 @@ namespace VezeetaApi.Controllers
             var docSpecs = await UnitOfWork.GetRepository<DoctorSpecializion>().GetAllAsync();
             if (docSpecs is null)
                 return NotFound();
-            return Ok(docSpecs);
+            var result = Mapper.Map<IEnumerable<DoctorSpecializionDTO>>(docSpecs);
+            return Ok(result);
         }
 
         [HttpGet("Specializion/{id}")]
@@ -36,8 +35,8 @@ namespace VezeetaApi.Controllers
             var oneDocSpec = await UnitOfWork.GetRepository<DoctorSpecializion>().GetByIdAsync(id);
             if (oneDocSpec is null) 
                 return NotFound();
-
-            return Ok(oneDocSpec);
+            var result = Mapper.Map<DoctorSpecializionDTO>(oneDocSpec);
+            return Ok(result);
         }
 
         [HttpPost("AddNewSpecializion")]
@@ -57,15 +56,14 @@ namespace VezeetaApi.Controllers
             if(docSpec is null)
                 return NotFound(doctorSpecializionDTO);
 
-            //docSpec = Mapper.Map<DoctorSpecializion>(doctorSpecializionDTO);
-
             docSpec.SpecializationName = doctorSpecializionDTO.SpecializationName;
 
             UnitOfWork.GetRepository<DoctorSpecializion>().Update(docSpec);
             
             await UnitOfWork.SaveChangesAsync();
 
-            return Ok(docSpec);
+            var result = Mapper.Map<DoctorSpecializionDTO>(docSpec);
+            return Ok(result);
         }
 
         [HttpDelete("DeleteSpecializion")]
@@ -77,7 +75,9 @@ namespace VezeetaApi.Controllers
                 return NotFound();
 
             await UnitOfWork.SaveChangesAsync();
-            return Ok(docSpec);
+
+            var result = Mapper.Map<DoctorSpecializionDTO>(docSpec);
+            return Ok(result);
         }
 
     }
