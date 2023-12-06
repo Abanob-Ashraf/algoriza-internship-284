@@ -33,7 +33,7 @@ namespace VezeetaApi.Infrastructure.Repositories
 
         public async Task<T> FindAsync(Expression<Func<T, bool>> criteria)
         {
-            return await DbSet.SingleOrDefaultAsync(criteria);
+            return await DbSet.AsNoTracking().SingleOrDefaultAsync(criteria);
         }
 
         public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
@@ -58,7 +58,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             await DbSet.AddRangeAsync(entities);
             return entities;
         }
-
+        
         public void Update(T entity)
         {
             DbSet.Update(entity);
