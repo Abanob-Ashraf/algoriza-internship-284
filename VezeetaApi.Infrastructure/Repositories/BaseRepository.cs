@@ -79,10 +79,12 @@ namespace VezeetaApi.Infrastructure.Repositories
             DbSet.RemoveRange(entities);
         }
 
-        public void DeActiveAndActive(BaseEntity<T> entity)
+        public void DeActiveAndActive(IActivatable entity)
         {
             //entity.IsActive = entity.IsActive ? false : true;
+            //if (entity is BaseEntity<T> baseEntity)
             entity.IsActive = !entity.IsActive;
+            DbContext.Entry(entity).State = EntityState.Modified;
         }
     }
 }

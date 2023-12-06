@@ -28,6 +28,6 @@ namespace VezeetaApi.Domain.Interfaces
 
         void DeleteRange(IEnumerable<T> entities);
 
-        void DeActiveAndActive(BaseEntity<T> entity);
+        void DeActiveAndActive(IActivatable entity);
     }
 }
