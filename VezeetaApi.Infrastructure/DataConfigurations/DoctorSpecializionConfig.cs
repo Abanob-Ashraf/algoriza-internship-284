@@ -19,6 +19,8 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .HasMaxLength(50)
                 .IsRequired(true)
                 .IsUnicode(false);
+
+            entity.HasIndex(e => e.SpecializationName).IsUnique(true);
         }
     }
 }

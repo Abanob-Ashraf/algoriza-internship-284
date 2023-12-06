@@ -51,6 +51,10 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .HasColumnType("varchar(max)")
                 .IsRequired(false)
                 .IsUnicode(false);
+
+            entity.HasIndex(e => e.PatientEmail).IsUnique(true);
+
+            entity.HasIndex(e => e.PatientPhone).IsUnique(true);
         }
     }
 }

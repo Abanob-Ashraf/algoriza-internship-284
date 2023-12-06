@@ -28,6 +28,8 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
 
             entity.Property(e => e.DiscountValue)
                 .IsRequired(true);
+
+            entity.HasIndex(e => e.DiscountCode).IsUnique(true);
         }
     }
 }

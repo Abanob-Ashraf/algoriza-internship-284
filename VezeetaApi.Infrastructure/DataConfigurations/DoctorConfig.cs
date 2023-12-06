@@ -53,6 +53,10 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsRequired(false)
                 .IsUnicode(false);
 
+            entity.HasIndex(e => e.DocEmail).IsUnique(true);
+
+            entity.HasIndex(e => e.DocPhone).IsUnique(true);
+
             entity.HasOne(e => e.SpecializationIdNavigation)
                 .WithMany(e => e.Doctors)
                 .HasForeignKey(e => e.SpecializationId)
