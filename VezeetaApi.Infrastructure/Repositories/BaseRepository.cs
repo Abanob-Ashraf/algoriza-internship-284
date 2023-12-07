@@ -6,12 +6,12 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using VezeetaApi.Domain.Dtos;
-using VezeetaApi.Domain.Interfaces;
+using VezeetaApi.Domain.Services;
 using VezeetaApi.Infrastructure.Data;
 
 namespace VezeetaApi.Infrastructure.Repositories
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : class
+    public class BaseRepository<T> : IBaseService<T> where T : class
     {
         readonly VezeetaDbContext DbContext;
         private readonly DbSet<T> DbSet;

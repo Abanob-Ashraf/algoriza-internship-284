@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using VezeetaApi.Domain.Dtos;
 
-namespace VezeetaApi.Domain.Interfaces
+namespace VezeetaApi.Domain.Services
 {
-    public interface IBaseRepository<T> where T : class
+    public interface IBaseService<T> where T : class
     {
         Task<IEnumerable<T>> GetAllAsync();
 

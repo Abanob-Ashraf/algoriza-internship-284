@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VezeetaApi.Domain.Interfaces
+namespace VezeetaApi.Domain.Services
 {
     public interface IActivatable
     {

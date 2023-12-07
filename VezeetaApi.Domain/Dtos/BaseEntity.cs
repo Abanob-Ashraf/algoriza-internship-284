@@ -1,4 +1,4 @@
-﻿using VezeetaApi.Domain.Interfaces;
+﻿using VezeetaApi.Domain.Services;
 
 namespace VezeetaApi.Domain.Dtos
 {

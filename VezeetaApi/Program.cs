@@ -2,10 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using VezeetaApi.Domain;
-using VezeetaApi.Domain.Interfaces;
+using VezeetaApi.Domain.Services;
+using VezeetaApi.Domain.Repositories;
 using VezeetaApi.Infrastructure;
 using VezeetaApi.Infrastructure.AutoMapperConfig;
 using VezeetaApi.Infrastructure.Data;
+using VezeetaApi.Infrastructure.RepoServices;
 using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi
@@ -39,7 +41,8 @@ namespace VezeetaApi
             ));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-            builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
 
             builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(MapperProfile)));
 
