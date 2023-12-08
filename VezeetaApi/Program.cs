@@ -38,7 +38,7 @@ namespace VezeetaApi
 
             builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<VezeetaDbContext>();
 
-            builder.Services.AddScoped<IAuthSevice, AuthRepository>();
+            builder.Services.AddScoped<IAuthService, AuthRepository>();
 
             builder.Services.AddScoped<IInitializeDefaultData, InitializeDefaultDataRepository>();
             builder.Services.AddHostedService<InitializeDefaultDataService>();

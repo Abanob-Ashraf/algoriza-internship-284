@@ -3,14 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Helpers;
 using VezeetaApi.Domain.Models;
@@ -18,19 +15,21 @@ using VezeetaApi.Domain.Services;
 
 namespace VezeetaApi.Infrastructure.Repositories
 {
-    public class AuthRepository : IAuthSevice
+    public class AuthRepository : IAuthService
     {
         readonly UserManager<AppUser> UserManager;
         readonly IMapper Mapper;
         readonly RoleManager<IdentityRole> RoleManager;
         readonly JWT Jwt;
+        readonly IUnitOfWork UnitOfWork;
 
-        public AuthRepository(UserManager<AppUser> userManager, IMapper mapper, IOptions<JWT> jwt, RoleManager<IdentityRole> roleManager)
+        public AuthRepository(UserManager<AppUser> userManager, IMapper mapper, IOptions<JWT> jwt, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork)
         {
             UserManager = userManager;
             Mapper = mapper;
             Jwt = jwt.Value;
             RoleManager = roleManager;
+            UnitOfWork = unitOfWork;
         }
 
         public async Task<AuthModelDTO> RegistrationAsync(RegisterDTO registerDto)
@@ -67,6 +66,7 @@ namespace VezeetaApi.Infrastructure.Repositories
 
             await UserManager.AddToRoleAsync(user, "Patient");
             var token = await CreateJwtToken(user);
+            await UnitOfWork.GetRepository<Patient>().AddAsync(patient);
             return new AuthModelDTO
             {
                 PhoneNumber = user.PhoneNumber,

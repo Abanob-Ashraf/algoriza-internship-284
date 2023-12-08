@@ -7,7 +7,7 @@ using VezeetaApi.Domain.Dtos;
 
 namespace VezeetaApi.Domain.Services
 {
-    public interface IAuthSevice
+    public interface IAuthService
     {
         Task<AuthModelDTO> RegistrationAsync(RegisterDTO dto);
         Task<AuthModelDTO> LoginAsync(LoginDTO dto);

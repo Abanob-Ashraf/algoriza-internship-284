@@ -52,7 +52,7 @@ namespace VezeetaApi.Infrastructure.Repositories
                 PasswordHash = GeneralPWD
             };
             await UserManager.CreateAsync(Admin, GeneralPWD);
-            await UserManager.AddToRoleAsync(Admin, "Doctor");
+            await UserManager.AddToRoleAsync(Admin, "Admin");
 
             var Doctor = new AppUser
             {
@@ -64,7 +64,7 @@ namespace VezeetaApi.Infrastructure.Repositories
                 PasswordHash = GeneralPWD
             };
             await UserManager.CreateAsync(Doctor, GeneralPWD);
-            await UserManager.AddToRoleAsync(Doctor, "Patient");
+            await UserManager.AddToRoleAsync(Doctor, "Doctor");
 
             string PatientPWD = "Patient$123";
 
