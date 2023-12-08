@@ -72,7 +72,8 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 DocBirthDate = new DateTime(1998, 10, 31),
                 DocPhone = "01234567892",
                 DocEmail = "testdoctor@vezeeta.org",
-                DocPassword = "Admin$123"
+                DocPassword = "Admin$123",
+                SpecializationId = 1,
             });
         }
     }

@@ -63,6 +63,7 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 PatientFirstName = "Test",
                 PatientLastName = "Patient",
                 PatientBirthDate = new DateTime(1998, 10, 31),
+                PatientGender = Gender.Male,
                 PatientPhone = "01234567893",
                 PatientEmail = "testpatient@vezeeta.com",
                 PatientPassword = "Patient$123"

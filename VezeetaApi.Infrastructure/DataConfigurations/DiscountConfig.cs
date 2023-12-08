@@ -43,7 +43,7 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
             entity.HasData(new Discount()
             {
                 Id = 2,
-                DiscountCode = "Test10",
+                DiscountCode = "Test02",
                 NumOfCompletedRequests = 2,
                 DiscountType = DiscountType.Value,
                 DiscountValue = 50
