@@ -18,7 +18,7 @@ namespace VezeetaApi.Infrastructure.RepoServices
         readonly VezeetaDbContext DbContext;
         public AppointmentRepoService(VezeetaDbContext dbContext) : base(dbContext)
         {
-            
+            DbContext = dbContext;
         }
 
         public new async Task<object> FindAsync(Expression<Func<Appointment, bool>> criteria)

@@ -33,12 +33,12 @@ namespace VezeetaApi.Controllers
         [HttpGet("Appointment/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var appointment = await UnitOfWork.GetRepository<Appointment>().GetByIdAsync(id);
-            //var appointment = await UnitOfWork.AppointmentRepo.FindAsync(c => c.Id == id);
+            //var appointment = await UnitOfWork.GetRepository<Appointment>().GetByIdAsync(id);
+            var appointment = await UnitOfWork.AppointmentRepo.FindAsync(c => c.Id == id);
             if (appointment is null)
                 return NotFound();
-            var result = Mapper.Map<AppointmentDTO>(appointment);
-            return Ok(result);
+            //var result = Mapper.Map<AppointmentDTO>(appointment);
+            return Ok(appointment);
         }
 
         [HttpPost("AddNewAppointment")]
