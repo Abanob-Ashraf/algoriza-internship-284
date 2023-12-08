@@ -36,7 +36,7 @@ namespace VezeetaApi.Infrastructure.Repositories
         public async Task<AuthModelDTO> RegistrationAsync(RegisterDTO registerDto)
         {
             var phones = UserManager.Users.Select(c => c.PhoneNumber).ToList();
-            if (phones.Contains(registerDto.Phone))
+            if (phones.Contains(registerDto.PhoneNumber))
                 return new AuthModelDTO { Message = "PhoneNumber is already registered!" };
 
             if (await UserManager.FindByEmailAsync(registerDto.Email) is not null)
@@ -50,9 +50,9 @@ namespace VezeetaApi.Infrastructure.Repositories
             {
                 PatientFirstName = user.FirstName,
                 PatientLastName = user.LastName,
+                PatientPhone = user.PhoneNumber,
                 PatientEmail = user.Email,
                 PatientPassword = user.PasswordHash,
-                PatientPhone = user.PhoneNumber,
             };
 
             if (!result.Succeeded)
@@ -69,7 +69,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             var token = await CreateJwtToken(user);
             return new AuthModelDTO
             {
-                UserName = user.UserName,
+                PhoneNumber = user.PhoneNumber,
                 Email = user.Email,
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 ExpiredOn = token.ValidTo,
@@ -93,7 +93,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             var roles = await UserManager.GetRolesAsync(user);
 
             authDto.IsAuthenticated = true;
-            authDto.UserName = user.UserName;
+            authDto.PhoneNumber = user.PhoneNumber;
             authDto.Roles = roles.ToList();
             authDto.Email = user.Email;
             authDto.Token = new JwtSecurityTokenHandler().WriteToken(token);
