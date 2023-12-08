@@ -34,30 +34,20 @@ namespace VezeetaApi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<VezeetaDbContext>(options => 
-            {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-                //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            });
-
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
 
-            builder.Services.AddCors(corsOption =>
-            corsOption.AddPolicy("MyPolicy", corsPolicyBuilder =>
-            corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
-            ));
+            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<VezeetaDbContext>();
 
-            builder.Services.AddScoped<IInitializeDefaultData, InitializeDefaultDataRepository>();
-
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IAuthSevice, AuthRepository>();
 
-            builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
+            builder.Services.AddScoped<IInitializeDefaultData, InitializeDefaultDataRepository>();
+            builder.Services.AddHostedService<InitializeDefaultDataService>();
 
-            builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
-
-            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<VezeetaDbContext>();
             builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(MapperProfile)));
+
+            builder.Services.AddDbContext<VezeetaDbContext>(options => 
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            );
 
             builder.Services.AddAuthentication(option =>
             {
@@ -78,6 +68,16 @@ namespace VezeetaApi
                 };
             });
 
+            builder.Services.AddCors(corsOption =>
+            corsOption.AddPolicy("MyPolicy", corsPolicyBuilder =>
+            corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+            ));
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
+
+            //builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
 
             var app = builder.Build();
 

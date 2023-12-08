@@ -22,6 +22,11 @@ namespace VezeetaApi.Infrastructure.Repositories
 
         public async Task InitializeData()
         {
+            if (UserManager.Users.Any())
+            {
+                return;
+            }
+
             IdentityRole admin = new IdentityRole();
             admin.Name = "Admin";
 
