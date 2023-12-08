@@ -40,8 +40,13 @@ namespace VezeetaApi
             corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
             ));
 
+            builder.Services.AddScoped<IInitializeDefaultData, InitializeDefaultDataRepository>();
+
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IAuthSevice, AuthRepository>();
+
             builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
+
             builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
 
             builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(MapperProfile)));
