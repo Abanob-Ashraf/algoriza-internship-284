@@ -37,6 +37,15 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .HasForeignKey(e => e.DoctorId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_doctorSchedule_doctor");
+
+            entity.HasData(new DoctorSchedule()
+            {
+                Id = 1,
+                Amount = 70.00,
+                ScheduleDay = Day.Monday,
+                ScheduleTime = new TimeSpan(15, 30, 0),
+                DoctorId = 1
+            });
         }
     }
 }

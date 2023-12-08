@@ -21,6 +21,12 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsUnicode(false);
 
             entity.HasIndex(e => e.SpecializationName).IsUnique(true);
+
+            entity.HasData(new DoctorSpecializion()
+            {
+                Id = 1,
+                SpecializationName = "Neurology"
+            });
         }
     }
 }

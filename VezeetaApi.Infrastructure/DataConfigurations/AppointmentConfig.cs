@@ -41,6 +41,16 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_appoinment_discount");
+
+            entity.HasData(new Appointment()
+            {
+                Id = 1,
+                ResevationDate = DateTime.Now,
+                Status = Status.pending,
+                PatientId = 1,
+                DoctorId = 1,
+                DiscountId = 1,
+            });
         }
     }
 }

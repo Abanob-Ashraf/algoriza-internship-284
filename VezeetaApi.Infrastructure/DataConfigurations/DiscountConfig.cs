@@ -30,6 +30,24 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsRequired(true);
 
             entity.HasIndex(e => e.DiscountCode).IsUnique(true);
+
+            entity.HasData(new Discount()
+            {
+                Id = 1,
+                DiscountCode = "Test10",
+                NumOfCompletedRequests = 5,
+                DiscountType = DiscountType.Percentage,
+                DiscountValue = 10
+            });
+            
+            entity.HasData(new Discount()
+            {
+                Id = 2,
+                DiscountCode = "Test10",
+                NumOfCompletedRequests = 2,
+                DiscountType = DiscountType.Value,
+                DiscountValue = 50
+            });
         }
     }
 }

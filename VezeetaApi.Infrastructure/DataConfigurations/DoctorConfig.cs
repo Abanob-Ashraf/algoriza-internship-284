@@ -62,6 +62,18 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .HasForeignKey(e => e.SpecializationId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_doctor_specialization");
+
+            entity.HasData(new Doctor()
+            {
+                Id = 1,
+                DocImage = "Image.Jpg",
+                DocFirstName = "Test",
+                DocLastName = "Doctor",
+                DocBirthDate = new DateTime(1998, 10, 31),
+                DocPhone = "01234567892",
+                DocEmail = "testdoctor@vezeeta.org",
+                DocPassword = "Admin$123"
+            });
         }
     }
 }

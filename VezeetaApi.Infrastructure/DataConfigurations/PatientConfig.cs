@@ -55,6 +55,18 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
             entity.HasIndex(e => e.PatientEmail).IsUnique(true);
 
             entity.HasIndex(e => e.PatientPhone).IsUnique(true);
+
+            entity.HasData(new Patient()
+            {
+                Id = 1,
+                PatientImage = "Image.Jpg",
+                PatientFirstName = "Test",
+                PatientLastName = "Patient",
+                PatientBirthDate = new DateTime(1998, 10, 31),
+                PatientPhone = "01234567893",
+                PatientEmail = "testpatient@vezeeta.com",
+                PatientPassword = "Patient$123"
+            });
         }
     }
 }
