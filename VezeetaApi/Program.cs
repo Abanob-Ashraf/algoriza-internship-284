@@ -9,6 +9,11 @@ using VezeetaApi.Infrastructure.AutoMapperConfig;
 using VezeetaApi.Infrastructure.Data;
 using VezeetaApi.Infrastructure.RepoServices;
 using VezeetaApi.Infrastructure.Repositories;
+using VezeetaApi.Domain.Helpers;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace VezeetaApi
 {
@@ -35,6 +40,8 @@ namespace VezeetaApi
                 //options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
+            builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+
             builder.Services.AddCors(corsOption =>
             corsOption.AddPolicy("MyPolicy", corsPolicyBuilder =>
             corsPolicyBuilder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
@@ -49,7 +56,28 @@ namespace VezeetaApi
 
             builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
 
+            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<VezeetaDbContext>();
             builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(MapperProfile)));
+
+            builder.Services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(option =>
+            {
+                option.SaveToken = true;
+                option.RequireHttpsMetadata = false;
+                option.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = builder.Configuration["JWT:ValidAudiance"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
+                };
+            });
+
 
             var app = builder.Build();
 
