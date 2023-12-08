@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VezeetaApi.Domain.Models;
 
 namespace VezeetaApi.Infrastructure.Repositories
 {
@@ -11,5 +12,8 @@ namespace VezeetaApi.Infrastructure.Repositories
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+
+        public List<RefreshToken>? RefreshTokens { get; set; }
+
     }
 }
