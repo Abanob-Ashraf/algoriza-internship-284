@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Services;
 
@@ -27,7 +26,7 @@ namespace VezeetaApi.Controllers
                 return BadRequest(result.Message);
 
             SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
-            return Ok(result);
+            return Ok(new {result.Token, result.ExpiredOn});
         }
 
         [HttpPost("Login")]
@@ -43,11 +42,26 @@ namespace VezeetaApi.Controllers
             if (!string.IsNullOrEmpty(result.RefreshToken))
                 SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
 
+            return Ok(new { result.Token, result.ExpiredOn });
+        }
+
+        [HttpGet("RefreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            var result = await AuthService.RefreshTokenAsync(refreshToken);
+
+            if (!result.IsAuthenticated)
+                return BadRequest(result);
+
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
             return Ok(result);
         }
 
-        [HttpPost("revokeToken")]
-        public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenDTO model)
+        [HttpPost("RevokeToken")]
+        public async Task<IActionResult> RevokeToken(RevokeTokenDTO model)
         {
             var token = model.Token ?? Request.Cookies["refreshToken"];
 
@@ -68,6 +82,9 @@ namespace VezeetaApi.Controllers
             {
                 HttpOnly = true,
                 Expires = expires.ToLocalTime(),
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
             };
 
             Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
