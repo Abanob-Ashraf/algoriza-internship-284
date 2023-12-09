@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Numerics;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
+using VezeetaApi.Domain.Services;
 using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi.Controllers
@@ -16,12 +16,14 @@ namespace VezeetaApi.Controllers
         readonly IUnitOfWork UnitOfWork;
         readonly IMapper Mapper;
         private readonly UserManager<AppUser> UserManager;
+        private readonly ISendingEmailService SendingEmailService;
 
-        public DoctorController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<AppUser> userManager)
+        public DoctorController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<AppUser> userManager, ISendingEmailService sendingEmailService)
         {
             UnitOfWork = unitOfWork;
             Mapper = mapper;
             UserManager = userManager;
+            SendingEmailService = sendingEmailService;
         }
 
         [HttpGet("GetAllDoctors")]
@@ -47,13 +49,12 @@ namespace VezeetaApi.Controllers
         [HttpPost("AddNewDoctor")]
         public async Task<IActionResult> AddAsync(DoctorDTO doctorDTO)
         {
-            //Random random = new Random();
-            //long newRandomNum = Convert.ToInt64(random.Next(1, 50) + doctorDTO.DocPhone) / 350000 * 2;
+            Random random = new Random();
+            long newRandomNum = Convert.ToInt64(random.Next(1, 50) + doctorDTO.DocPhone) / 350000 * 2;
 
-            var genericPassword = $"{doctorDTO.DocFirstName}#{doctorDTO.DocPhone}";
+            var genericPassword = $"{doctorDTO.DocFirstName}#{newRandomNum}";
             string FinalFormOfPassword = char.ToUpper(genericPassword[0]) + genericPassword.Substring(1);
             doctorDTO.DocPassword = FinalFormOfPassword;
-
 
             var aspUser = new AppUser()
             {
@@ -82,9 +83,21 @@ namespace VezeetaApi.Controllers
             var newDoctor = Mapper.Map<Doctor>(doctorDTO);
             await UnitOfWork.GetRepository<Doctor>().AddAsync(newDoctor);
             await UnitOfWork.SaveChangesAsync();
-
             await UserManager.AddToRoleAsync(aspUser, "Doctor");
 
+            var message = new MailMessageDTO(
+                
+                new string[] { aspUser.Email },
+                "Your email And Password",
+                $"<br>" +
+                $"<label style='font - size: 16px; border - radius: 0.25rem; color: blue;' >Your Email: </label> " +
+                $"<label style='font - size: 16px; border - radius: 0.25rem;' >{doctorDTO.DocEmail}</label> <br> " +
+                $"<label style='font - size: 16px; border - radius: 0.25rem; color: blue;' >Your PassWord:</label> " +
+                $"<label style='font - size: 16px; border - radius: 0.25rem;' >{FinalFormOfPassword}</label> <br>" +
+                $"<label style='font-size: 16px; border-radius: 0.25rem; color: red;'>Please Don't Share it with anyOne</label> ",
+                null);
+
+            await SendingEmailService.SendEmailAsync(message);
             var finalResult = Mapper.Map<DoctorDTO>(newDoctor);
             return Ok(finalResult);
         }
