@@ -30,10 +30,10 @@ namespace VezeetaApi
             builder.Services.AddSwaggerGen();
 
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
-
-            builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<VezeetaDbContext>();
+            builder.Services.Configure<Mail>(builder.Configuration.GetSection("Mail"));
 
             builder.Services.AddScoped<IAuthService, AuthRepository>();
+            builder.Services.AddScoped<ISendingEmailService, SendingEmailService>();
 
             builder.Services.AddScoped<IInitializeDefaultData, InitializeDefaultDataRepository>();
             builder.Services.AddHostedService<InitializeDefaultDataService>();
@@ -43,6 +43,15 @@ namespace VezeetaApi
             builder.Services.AddDbContext<VezeetaDbContext>(options => 
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
             );
+
+            builder.Services.AddIdentity<AppUser, IdentityRole>(option =>
+            {
+                option.Password.RequiredLength = 8;
+                option.Password.RequireDigit = false;
+                option.Password.RequireUppercase = true;
+                option.Password.RequireNonAlphanumeric = false;
+            }).AddEntityFrameworkStores<VezeetaDbContext>();
+
 
             builder.Services.AddAuthentication(option =>
             {
