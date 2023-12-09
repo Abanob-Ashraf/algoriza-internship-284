@@ -45,15 +45,6 @@ namespace VezeetaApi.Infrastructure.Repositories
 
             var result = await UserManager.CreateAsync(user, registerDto.Password);
 
-            Patient patient = new Patient()
-            {
-                PatientFirstName = user.FirstName,
-                PatientLastName = user.LastName,
-                PatientPhone = user.PhoneNumber,
-                PatientEmail = user.Email,
-                PatientPassword = user.PasswordHash,
-            };
-
             if (!result.Succeeded)
             {
                 var errors = string.Empty;
@@ -64,9 +55,22 @@ namespace VezeetaApi.Infrastructure.Repositories
                 return new AuthModelDTO { Message = errors };
             }
 
+            PatientDTO patientDTO = new PatientDTO()
+            {
+                PatientFirstName = user.FirstName,
+                PatientLastName = user.LastName,
+                PatientPhone = user.PhoneNumber,
+                PatientEmail = user.Email,
+                PatientPassword = user.PasswordHash,
+            };
+
+            var newPatient = Mapper.Map<Patient>(patientDTO);
+            await UnitOfWork.GetRepository<Patient>().AddAsync(newPatient);
+            await UnitOfWork.SaveChangesAsync();
+
             await UserManager.AddToRoleAsync(user, "Patient");
-            var token = await CreateJwtToken(user);
-            await UnitOfWork.GetRepository<Patient>().AddAsync(patient);
+            var token = await CreateJwtToken(user, newPatient.Id);
+
             return new AuthModelDTO
             {
                 PhoneNumber = user.PhoneNumber,
@@ -82,16 +86,33 @@ namespace VezeetaApi.Infrastructure.Repositories
         public async Task<AuthModelDTO> LoginAsync(LoginDTO LoginDto)
         {
             var authDto = new AuthModelDTO();
+            int? id = null;
             var user = await UserManager.FindByEmailAsync(LoginDto.Email);
             if (user is null || !await UserManager.CheckPasswordAsync(user, LoginDto.Password))
             {
                 authDto.Message = "Email or Password is incorrect!";
                 return authDto;
             }
-
-            var token = await CreateJwtToken(user);
             var roles = await UserManager.GetRolesAsync(user);
 
+            if (roles.Contains("Patient")) 
+            {
+                var patient = await UnitOfWork.GetRepository<Patient>().FindAsync(c => c.PatientEmail == user.Email);
+                id = patient.Id;
+            }
+            else if (roles.Contains("Doctor"))
+            {
+                var doctor = await UnitOfWork.GetRepository<Doctor>().FindAsync(c => c.DocEmail == user.Email);
+                id = doctor.Id;
+
+            }
+            else if (roles.Contains("Admin"))
+            {
+                id = null;
+            }
+
+           var token = await CreateJwtToken(user, id);
+           
             authDto.IsAuthenticated = true;
             authDto.PhoneNumber = user.PhoneNumber;
             authDto.Roles = roles.ToList();
@@ -147,7 +168,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             return true;
         }
 
-        private async Task<JwtSecurityToken> CreateJwtToken(AppUser user)
+        private async Task<JwtSecurityToken> CreateJwtToken(AppUser user, int? id)
         {
             var userClaims = await UserManager.GetClaimsAsync(user);
             var roles = await UserManager.GetRolesAsync(user);
@@ -159,15 +180,22 @@ namespace VezeetaApi.Infrastructure.Repositories
             }
 
             var FullName = $"{user.FirstName} {user.LastName}";
-            var claims = new Claim[]
+            var claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.Sub, FullName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("uid", user.Id)
+            };
+            if (id.HasValue)
+            {
+                claims.Add(new Claim("DbUserId", id.Value.ToString()));
             }
-            .Union(userClaims)
-            .Union(roleClaim);
+            claims = claims.Union(userClaims).Union(roleClaim).ToList();
+
+
+            //.Union(userClaims)
+            //.Union(roleClaim);
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Jwt.Key));
             var signInCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
