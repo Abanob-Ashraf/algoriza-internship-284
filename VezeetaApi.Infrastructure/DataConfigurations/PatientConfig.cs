@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VezeetaApi.Domain.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VezeetaApi.Infrastructure.DataConfigurations
 {
@@ -31,11 +32,11 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsUnicode(false);
 
             entity.Property(e => e.PatientBirthDate)
-                .IsRequired(true)
+                .IsRequired(false)
                 .HasColumnType("datetime2");
 
             entity.Property(e => e.PatientGender)
-                .IsRequired(true);
+                .IsRequired(false);
 
             entity.Property(e => e.PatientPhone)
                 .HasMaxLength(11)
