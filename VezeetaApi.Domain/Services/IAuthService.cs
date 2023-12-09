@@ -9,8 +9,9 @@ namespace VezeetaApi.Domain.Services
 {
     public interface IAuthService
     {
-        Task<AuthModelDTO> RegistrationAsync(RegisterDTO dto);
-        Task<AuthModelDTO> LoginAsync(LoginDTO dto);
+        Task<AuthDTO> RegistrationAsync(RegisterDTO dto);
+        Task<AuthDTO> LoginAsync(LoginDTO dto);
+        Task<AuthDTO> RefreshTokenAsync(string token);
         Task<bool> RevokeTokenAsync(string token);
     }
 }

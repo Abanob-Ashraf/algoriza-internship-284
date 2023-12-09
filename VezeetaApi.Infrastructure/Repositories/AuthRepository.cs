@@ -30,14 +30,14 @@ namespace VezeetaApi.Infrastructure.Repositories
             UnitOfWork = unitOfWork;
         }
 
-        public async Task<AuthModelDTO> RegistrationAsync(RegisterDTO registerDto)
+        public async Task<AuthDTO> RegistrationAsync(RegisterDTO registerDto)
         {
             var phones = UserManager.Users.Select(c => c.PhoneNumber).ToList();
             if (phones.Contains(registerDto.PhoneNumber))
-                return new AuthModelDTO { Message = "PhoneNumber is already registered!" };
+                return new AuthDTO { Message = "PhoneNumber is already registered!" };
 
             if (await UserManager.FindByEmailAsync(registerDto.Email) is not null)
-                return new AuthModelDTO { Message = "Email is already registered!" };
+                return new AuthDTO { Message = "Email is already registered!" };
 
             var user = Mapper.Map<AppUser>(registerDto);
 
@@ -50,7 +50,7 @@ namespace VezeetaApi.Infrastructure.Repositories
                 {
                     errors += $"{error.Description},";
                 }
-                return new AuthModelDTO { Message = errors };
+                return new AuthDTO { Message = errors };
             }
 
             PatientDTO patientDTO = new PatientDTO()
@@ -69,7 +69,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             await UserManager.AddToRoleAsync(user, "Patient");
             var token = await CreateJwtToken(user, newPatient.Id);
 
-            return new AuthModelDTO
+            return new AuthDTO
             {
                 PhoneNumber = user.PhoneNumber,
                 Email = user.Email,
@@ -81,9 +81,9 @@ namespace VezeetaApi.Infrastructure.Repositories
             };
         }
 
-        public async Task<AuthModelDTO> LoginAsync(LoginDTO LoginDto)
+        public async Task<AuthDTO> LoginAsync(LoginDTO LoginDto)
         {
-            var authDto = new AuthModelDTO();
+            var authDto = new AuthDTO();
             int? id = null;
             var user = await UserManager.FindByEmailAsync(LoginDto.Email);
             if (user is null || !await UserManager.CheckPasswordAsync(user, LoginDto.Password))
@@ -119,9 +119,9 @@ namespace VezeetaApi.Infrastructure.Repositories
             authDto.Token = new JwtSecurityTokenHandler().WriteToken(token);
             authDto.ExpiredOn = token.ValidTo;
 
-            if (user.RefreshTokens.Any(r => r.IsActive))
+            if (user.RefreshTokens.Any(c => c.IsActive))
             {
-                var activeRefreshToken = user.RefreshTokens.SingleOrDefault(r => r.IsActive);
+                var activeRefreshToken = user.RefreshTokens.SingleOrDefault(c => c.IsActive);
                 authDto.RefreshToken = activeRefreshToken.Token;
                 authDto.RefreshTokenExpiration = activeRefreshToken.ExpiredOn;
             }
@@ -135,6 +135,47 @@ namespace VezeetaApi.Infrastructure.Repositories
             }
             return authDto;
         }
+
+
+        public async Task<AuthDTO> RefreshTokenAsync(string token)
+        {
+            var authModel = new AuthDTO();
+
+            var user = await UserManager.Users.SingleOrDefaultAsync(c => c.RefreshTokens.Any(b => b.Token == token));
+
+            if (user is null)
+            {
+                authModel.Message = "Invalid token";
+                return authModel;
+            }
+
+            var refreshToken = user.RefreshTokens.Single(c => c.Token == token);
+
+            if (!refreshToken.IsActive)
+            {
+                authModel.Message = "Inactive token";
+                return authModel;
+            }
+
+            refreshToken.UpdatedDate = DateTime.UtcNow;
+
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshTokens.Add(newRefreshToken);
+            await UserManager.UpdateAsync(user);
+
+            var jwtToken = await CreateJwtToken(user, null);
+
+            authModel.IsAuthenticated = true;
+            authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+            authModel.Email = user.Email;
+            var roles = await UserManager.GetRolesAsync(user);
+            authModel.Roles = roles.ToList();
+            authModel.RefreshToken = newRefreshToken.Token;
+            authModel.RefreshTokenExpiration = newRefreshToken.ExpiredOn;
+
+            return authModel;
+        }
+
 
         public async Task<bool> RevokeTokenAsync(string token)
         {
@@ -178,10 +219,6 @@ namespace VezeetaApi.Infrastructure.Repositories
             }
             claims = claims.Union(userClaims).Union(roleClaim).ToList();
 
-
-            //.Union(userClaims)
-            //.Union(roleClaim);
-
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Jwt.Key));
             var signInCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
@@ -202,7 +239,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             return new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumber),
-                ExpiredOn = DateTime.UtcNow.AddDays(10),
+                ExpiredOn = DateTime.UtcNow.AddMinutes(10),
                 CreatedDate = DateTime.UtcNow,
             };
 
