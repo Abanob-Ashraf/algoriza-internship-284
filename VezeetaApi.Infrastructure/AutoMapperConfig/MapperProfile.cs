@@ -1,11 +1,7 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
+using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi.Infrastructure.AutoMapperConfig
 {
@@ -82,6 +78,13 @@ namespace VezeetaApi.Infrastructure.AutoMapperConfig
                 .ForMember(dist => dist.DoctorIdNavigation, src => src.Ignore())
                 .ForMember(dist => dist.DiscountIdNavigation, src => src.Ignore())
                 .ReverseMap();
+
+            CreateMap<AppUser, RegisterDTO>()
+               .ForMember(dist => dist.FirstName, src => src.MapFrom(src => src.FirstName))
+               .ForMember(dist => dist.LastName, src => src.MapFrom(src => src.LastName))
+               .ForMember(dist => dist.Email, src => src.MapFrom(src => src.Email))
+               .ForMember(dist => dist.PhoneNumber, src => src.MapFrom(src => src.PhoneNumber))
+               .ReverseMap();
         }
     }
 }
