@@ -11,7 +11,6 @@ namespace VezeetaApi.Domain.Services
     {
         Task<AuthModelDTO> RegistrationAsync(RegisterDTO dto);
         Task<AuthModelDTO> LoginAsync(LoginDTO dto);
-        Task<string> AddRoleAsync(RoleDTO dto);
         Task<bool> RevokeTokenAsync(string token);
     }
 }

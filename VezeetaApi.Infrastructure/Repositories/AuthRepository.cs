@@ -19,16 +19,14 @@ namespace VezeetaApi.Infrastructure.Repositories
     {
         readonly UserManager<AppUser> UserManager;
         readonly IMapper Mapper;
-        readonly RoleManager<IdentityRole> RoleManager;
         readonly JWT Jwt;
         readonly IUnitOfWork UnitOfWork;
 
-        public AuthRepository(UserManager<AppUser> userManager, IMapper mapper, IOptions<JWT> jwt, RoleManager<IdentityRole> roleManager, IUnitOfWork unitOfWork)
+        public AuthRepository(UserManager<AppUser> userManager, IMapper mapper, IOptions<JWT> jwt, IUnitOfWork unitOfWork)
         {
             UserManager = userManager;
             Mapper = mapper;
             Jwt = jwt.Value;
-            RoleManager = roleManager;
             UnitOfWork = unitOfWork;
         }
 
@@ -93,6 +91,7 @@ namespace VezeetaApi.Infrastructure.Repositories
                 authDto.Message = "Email or Password is incorrect!";
                 return authDto;
             }
+
             var roles = await UserManager.GetRolesAsync(user);
 
             if (roles.Contains("Patient")) 
@@ -137,20 +136,6 @@ namespace VezeetaApi.Infrastructure.Repositories
             return authDto;
         }
 
-        public async Task<string> AddRoleAsync(RoleDTO model)
-        {
-            var user = await UserManager.FindByIdAsync(model.UserId);
-            if (user is null || await RoleManager.RoleExistsAsync(model.Role))
-                return "Invalid user ID or Role";
-
-            if (await UserManager.IsInRoleAsync(user, model.Role))
-                return "User already assigned to this role";
-
-            var result = await UserManager.AddToRoleAsync(user, model.Role);
-
-            return result.Succeeded ? string.Empty : "Something went worng";
-        }
-
         public async Task<bool> RevokeTokenAsync(string token)
         {
             var user = await UserManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
@@ -162,7 +147,7 @@ namespace VezeetaApi.Infrastructure.Repositories
             if (!refreshToken.IsActive)
                 return false;
 
-            refreshToken.RevokedOn = DateTime.Now;
+            refreshToken.UpdatedDate = DateTime.UtcNow;
 
             await UserManager.UpdateAsync(user);
             return true;
@@ -203,7 +188,7 @@ namespace VezeetaApi.Infrastructure.Repositories
                 issuer: Jwt.ValidIssuer,
                 audience: Jwt.ValidAudiance,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Jwt.DurationInMinutes),
+                expires: DateTime.UtcNow.AddMinutes(Jwt.DurationInMinutes),
                 signingCredentials: signInCredentials
                 );
             return token;
@@ -217,8 +202,8 @@ namespace VezeetaApi.Infrastructure.Repositories
             return new RefreshToken
             {
                 Token = Convert.ToBase64String(RandomNumber),
-                ExpiredOn = DateTime.Now.AddDays(10),
-                CreatedOn = DateTime.Now,
+                ExpiredOn = DateTime.UtcNow.AddDays(10),
+                CreatedDate = DateTime.UtcNow,
             };
 
         }
