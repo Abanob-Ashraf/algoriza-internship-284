@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Numerics;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
+using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi.Controllers
 {
@@ -12,11 +15,13 @@ namespace VezeetaApi.Controllers
     {
         readonly IUnitOfWork UnitOfWork;
         readonly IMapper Mapper;
+        private readonly UserManager<AppUser> UserManager;
 
-        public DoctorController(IUnitOfWork unitOfWork, IMapper mapper)
+        public DoctorController(IUnitOfWork unitOfWork, IMapper mapper, UserManager<AppUser> userManager)
         {
             UnitOfWork = unitOfWork;
             Mapper = mapper;
+            UserManager = userManager;
         }
 
         [HttpGet("GetAllDoctors")]
@@ -42,10 +47,46 @@ namespace VezeetaApi.Controllers
         [HttpPost("AddNewDoctor")]
         public async Task<IActionResult> AddAsync(DoctorDTO doctorDTO)
         {
+            //Random random = new Random();
+            //long newRandomNum = Convert.ToInt64(random.Next(1, 50) + doctorDTO.DocPhone) / 350000 * 2;
+
+            var genericPassword = $"{doctorDTO.DocFirstName}#{doctorDTO.DocPhone}";
+            string FinalFormOfPassword = char.ToUpper(genericPassword[0]) + genericPassword.Substring(1);
+            doctorDTO.DocPassword = FinalFormOfPassword;
+
+
+            var aspUser = new AppUser()
+            {
+                FirstName = doctorDTO.DocFirstName,
+                LastName = doctorDTO.DocLastName,
+                UserName = doctorDTO.DocEmail,
+                Email = doctorDTO.DocEmail,
+                EmailConfirmed = true,
+                PhoneNumber = doctorDTO.DocPhone,
+                PasswordHash = FinalFormOfPassword
+            };
+
+            var result = await UserManager.CreateAsync(aspUser, FinalFormOfPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Empty;
+                foreach (var error in result.Errors)
+                {
+                    errors += $"{error.Description},";
+                }
+                return BadRequest(errors);
+            }
+
+            doctorDTO.DocPassword = aspUser.PasswordHash;
             var newDoctor = Mapper.Map<Doctor>(doctorDTO);
             await UnitOfWork.GetRepository<Doctor>().AddAsync(newDoctor);
             await UnitOfWork.SaveChangesAsync();
-            return Ok();
+
+            await UserManager.AddToRoleAsync(aspUser, "Doctor");
+
+            var finalResult = Mapper.Map<DoctorDTO>(newDoctor);
+            return Ok(finalResult);
         }
 
         [HttpPut("UpdateDoctor")]
