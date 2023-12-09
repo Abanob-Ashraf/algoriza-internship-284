@@ -40,8 +40,7 @@ namespace VezeetaApi.Infrastructure.AutoMapperConfig
                 .ForMember(dist => dist.DoctorId, src => src.MapFrom(src => src.DoctorId))
                 .ForMember(dist => dist.DoctorIdNavigation, src => src.Ignore())
                 .ReverseMap();
-            
-            
+                        
             CreateMap<DiscountDTO, Discount>()
                 .ForMember(dist => dist.Id, src => src.MapFrom(src => src.Id))
                 .ForMember(dist => dist.DiscountCode, src => src.MapFrom(src => src.DiscountCode))
@@ -50,7 +49,6 @@ namespace VezeetaApi.Infrastructure.AutoMapperConfig
                 .ForMember(dist => dist.DiscountValue, src => src.MapFrom(src => src.DiscountValue))
                 .ForMember(dist => dist.Appointments, src => src.Ignore())
                 .ReverseMap();
-
 
             CreateMap<PatientDTO, Patient>()
                 .ForMember(dist => dist.Id, src => src.MapFrom(src => src.Id))
@@ -65,7 +63,6 @@ namespace VezeetaApi.Infrastructure.AutoMapperConfig
                 .ForMember(dist => dist.PatientPassword, src => src.MapFrom(src => src.PatientPassword))
                 .ForMember(dist => dist.Appointments, src => src.Ignore())
                 .ReverseMap();
-
 
             CreateMap<AppointmentDTO, Appointment>()
                 .ForMember(dist => dist.Id, src => src.MapFrom(src => src.Id))

@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using VezeetaApi.Domain.Models;
 using VezeetaApi.Domain.Repositories;
 using VezeetaApi.Infrastructure.Data;
@@ -23,7 +17,6 @@ namespace VezeetaApi.Infrastructure.RepoServices
 
         public new async Task<object> FindAsync(Expression<Func<Appointment, bool>> criteria)
         {
-            // Your custom implementation here
             var result = await DbContext.Appointments
                 .Where(criteria)
                 .Select(a => new

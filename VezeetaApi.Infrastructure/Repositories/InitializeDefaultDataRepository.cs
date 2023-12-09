@@ -1,9 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using VezeetaApi.Domain.Services;
 
 namespace VezeetaApi.Infrastructure.Repositories
@@ -12,7 +7,6 @@ namespace VezeetaApi.Infrastructure.Repositories
     {
         public RoleManager<IdentityRole> RoleManager { get; }
         public UserManager<AppUser> UserManager { get; }
-
 
         public InitializeDefaultDataRepository(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
         {

@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using System.Text.Json.Serialization;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Services;
 using VezeetaApi.Domain.Repositories;
@@ -26,11 +25,7 @@ namespace VezeetaApi
             // Add services to the container.
 
             builder.Services.AddControllers();
-            //.AddJsonOptions(options =>
-            //{
-            //    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            //});
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -80,7 +75,7 @@ namespace VezeetaApi
 
             builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
 
-            //builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
+            builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
 
             var app = builder.Build();
 

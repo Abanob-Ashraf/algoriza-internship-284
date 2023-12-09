@@ -136,7 +136,6 @@ namespace VezeetaApi.Infrastructure.Repositories
             return authDto;
         }
 
-
         public async Task<AuthDTO> RefreshTokenAsync(string token)
         {
             var authModel = new AuthDTO();
@@ -242,7 +241,6 @@ namespace VezeetaApi.Infrastructure.Repositories
                 ExpiredOn = DateTime.UtcNow.AddMinutes(10),
                 CreatedDate = DateTime.UtcNow,
             };
-
         }
     }
 }

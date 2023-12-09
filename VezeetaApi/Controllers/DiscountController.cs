@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;

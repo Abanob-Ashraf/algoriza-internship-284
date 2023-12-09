@@ -1,11 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Services;
 using VezeetaApi.Infrastructure.Data;
 
@@ -81,8 +75,6 @@ namespace VezeetaApi.Infrastructure.Repositories
 
         public void DeActiveAndActive(IActivatable entity)
         {
-            //entity.IsActive = entity.IsActive ? false : true;
-            //if (entity is BaseEntity<T> baseEntity)
             entity.IsActive = !entity.IsActive;
             DbContext.Entry(entity).State = EntityState.Modified;
         }

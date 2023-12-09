@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VezeetaApi.Domain;
-using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Services;
 using VezeetaApi.Domain.Repositories;
 using VezeetaApi.Infrastructure.Data;
