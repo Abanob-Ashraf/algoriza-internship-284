@@ -1,4 +1,5 @@
-﻿using VezeetaApi.Domain.Models;
+﻿using System.Text.Json.Serialization;
+using VezeetaApi.Domain.Models;
 
 namespace VezeetaApi.Domain.Dtos
 {
@@ -20,7 +21,8 @@ namespace VezeetaApi.Domain.Dtos
 
         public string DocEmail { get; set; } = null!;
 
-        public string DocPassword { get; set; } = null!;
+        [JsonIgnore]
+        public string? DocPassword { get; set; }
 
         public int SpecializationId { get; set; }
     }
