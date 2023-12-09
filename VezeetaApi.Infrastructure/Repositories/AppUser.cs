@@ -10,10 +10,10 @@ namespace VezeetaApi.Infrastructure.Repositories
 {
     public class AppUser : IdentityUser
     {
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
 
-        public List<RefreshToken>? RefreshTokens { get; set; }
+        public virtual List<RefreshToken>? RefreshTokens { get; set; }
 
     }
 }

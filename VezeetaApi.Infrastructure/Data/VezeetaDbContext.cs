@@ -34,6 +34,8 @@ namespace VezeetaApi.Infrastructure.Data
 
         public DbSet<Appointment> Appointments { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -46,10 +48,11 @@ namespace VezeetaApi.Infrastructure.Data
                     var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType);
                     entityTypeBuilder.HasKey("Id");
                     entityTypeBuilder.Property("CreatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
-                    entityTypeBuilder.Property("UpdatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
+                    entityTypeBuilder.Property("UpdatedDate").HasColumnType("datetime2");
                     entityTypeBuilder.Property("IsActive").IsRequired(true);
                 }
             }
+
             new DoctorSpecializionConfig().Configure(modelBuilder.Entity<DoctorSpecializion>());
 
             new DoctorConfig().Configure(modelBuilder.Entity<Doctor>());
@@ -61,6 +64,8 @@ namespace VezeetaApi.Infrastructure.Data
             new PatientConfig().Configure(modelBuilder.Entity<Patient>());
 
             new AppointmentConfig().Configure(modelBuilder.Entity<Appointment>());
+
+            new RefreshTokenConfig().Configure(modelBuilder.Entity<RefreshToken>());
         }
 
         public static bool IsSubclassOfRawGeneric(Type genericBase, Type derivedType)
@@ -90,15 +95,17 @@ namespace VezeetaApi.Infrastructure.Data
             {
                 var entityType = entityEntry.Entity.GetType();
 
-                var updatedDateProperty = entityType.GetProperty("UpdatedDate");
-
-                updatedDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
-
                 if (entityEntry.State == EntityState.Added)
                 {
                     var createdDateProperty = entityType.GetProperty("CreatedDate");
 
-                    createdDateProperty.SetValue(entityEntry.Entity, DateTime.Now);
+                    createdDateProperty.SetValue(entityEntry.Entity, DateTime.UtcNow);
+                }
+                else
+                {
+                    var updatedDateProperty = entityType.GetProperty("UpdatedDate");
+
+                    updatedDateProperty.SetValue(entityEntry.Entity, DateTime.UtcNow);
                 }
             }
             return base.SaveChangesAsync(cancellationToken);
