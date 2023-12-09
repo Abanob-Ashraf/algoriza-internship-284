@@ -25,7 +25,7 @@ namespace VezeetaApi.Controllers
             if (!result.IsAuthenticated)
                 return BadRequest(result.Message);
 
-            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            //SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
             return Ok(new {result.Token, result.ExpiredOn});
         }
 

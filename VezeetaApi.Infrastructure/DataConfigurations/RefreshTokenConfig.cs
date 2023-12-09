@@ -16,6 +16,8 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
             });
 
             entity.ToTable("refreshToken", "token");
+
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
         }
     }
 }

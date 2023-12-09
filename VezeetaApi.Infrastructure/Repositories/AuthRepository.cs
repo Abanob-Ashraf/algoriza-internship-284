@@ -55,8 +55,11 @@ namespace VezeetaApi.Infrastructure.Repositories
 
             PatientDTO patientDTO = new PatientDTO()
             {
+                PatientImage = registerDto.Image,
                 PatientFirstName = user.FirstName,
                 PatientLastName = user.LastName,
+                PatientBirthDate = registerDto.BirthDate,
+                PatientGender = registerDto.Gender,
                 PatientPhone = user.PhoneNumber,
                 PatientEmail = user.Email,
                 PatientPassword = user.PasswordHash,
