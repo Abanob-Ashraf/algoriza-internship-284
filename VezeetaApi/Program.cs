@@ -2,11 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Services;
-using VezeetaApi.Domain.Repositories;
 using VezeetaApi.Infrastructure;
 using VezeetaApi.Infrastructure.AutoMapperConfig;
 using VezeetaApi.Infrastructure.Data;
-using VezeetaApi.Infrastructure.RepoServices;
 using VezeetaApi.Infrastructure.Repositories;
 using VezeetaApi.Domain.Helpers;
 using Microsoft.AspNetCore.Identity;
@@ -81,10 +79,7 @@ namespace VezeetaApi
             ));
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
             builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
-
-            builder.Services.AddScoped<IAppointmentRepo, AppointmentRepoService>();
 
             var app = builder.Build();
 
