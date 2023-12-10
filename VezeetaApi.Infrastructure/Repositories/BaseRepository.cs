@@ -31,15 +31,16 @@ namespace VezeetaApi.Infrastructure.Repositories
             return await DbSet.AsNoTracking().SingleOrDefaultAsync(criteria);
         }
 
-        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null)
+        public async Task<IEnumerable<T>> FindAllAsyncPaginated(Expression<Func<T, bool>> criteria, int page = 1, int PageSize = 5)
         {
             IQueryable<T> query = DbSet;
 
-            if (includes != null)
-                foreach (var include in includes)
-                    query = query.Include(include);
+            if (criteria is not null)
+            {
+                query = query.Where(criteria);
+            }
 
-            return await query.Where(criteria).ToListAsync();
+            return await query.Skip((page-1) * PageSize).Take(PageSize).ToListAsync();
         }
 
         public async Task<T> AddAsync(T entity)

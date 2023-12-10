@@ -10,7 +10,7 @@ namespace VezeetaApi.Domain.Services
 
         Task<T> FindAsync(Expression<Func<T, bool>> criteria);
 
-        Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> criteria, string[] includes = null);
+        Task<IEnumerable<T>> FindAllAsyncPaginated(Expression<Func<T, bool>> criteria, int page = 1, int pageSize = 5);
 
         Task<T> AddAsync(T entity);
 
