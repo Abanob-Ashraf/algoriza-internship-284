@@ -102,10 +102,30 @@ namespace VezeetaApi.Controllers
 
             appointmentDTO.PatientId = PatientId;
 
+            var patient = await UnitOfWork.GetRepository<Patient>().FindAllAsyncPaginated(c => c.Id == PatientId);
+
+            var patientAppointmentCompleted = patient.Where(c => c.Appointments.Select(v => v.Status).Contains(Status.completed)).Count();
+
+            var UsedDiscountCode = patient.SingleOrDefault().Appointments.Any(v => v.DiscountId == appointmentDTO.DiscountId);
+
+            var discount = await UnitOfWork.GetRepository<Discount>().FindAllAsyncPaginated(c => c.Id == appointmentDTO.DiscountId);
+
+            var numOfReq = discount.Select(c => c.NumOfCompletedRequests).SingleOrDefault();
+
             var newAppointment = Mapper.Map<Appointment>(appointmentDTO);
+
+            if (!UsedDiscountCode && patientAppointmentCompleted >= numOfReq)
+            {
+                await UnitOfWork.GetRepository<Appointment>().AddAsync(newAppointment);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+
+            appointmentDTO.DiscountId = null;
             await UnitOfWork.GetRepository<Appointment>().AddAsync(newAppointment);
             await UnitOfWork.SaveChangesAsync();
             return Ok();
+           
         }
 
         [Authorize(Roles = "Admin, Patient")]
