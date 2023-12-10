@@ -93,6 +93,7 @@ namespace VezeetaApi
             app.UseHttpsRedirection();
 
             app.UseCors("MyPolicy");
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
