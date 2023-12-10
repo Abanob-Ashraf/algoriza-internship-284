@@ -26,7 +26,7 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
                 .IsUnicode(false);
 
             entity.Property(e => e.PatientBirthDate)
-                .IsRequired(false)
+                .IsRequired(true)
                 .HasColumnType("datetime2");
 
             entity.Property(e => e.PatientGender)

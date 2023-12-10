@@ -149,7 +149,6 @@ namespace VezeetaApi.Controllers
             }).ToList();
 
             return Ok(data);
-
         }
 
         [Authorize(Roles = "Admin, Patient")]

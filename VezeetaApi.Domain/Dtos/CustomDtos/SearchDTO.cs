@@ -17,5 +17,7 @@ namespace VezeetaApi.Domain.Dtos.CustomDtos
         [DataType(DataType.EmailAddress, ErrorMessage = "Invalid Email Address")]
         public string? Email { get; set; }
         public string? SpecializationName { get; set; }
+
+        public DateTime? ResevationDate { get; set; }
     }
 }

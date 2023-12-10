@@ -18,8 +18,7 @@ namespace VezeetaApi.Domain.Models
 
         public string PatientLastName { get; set; } = null!;
 
-        //[CustomMaxDate]
-        public DateTime? PatientBirthDate { get; set; }
+        public DateTime PatientBirthDate { get; set; }
 
         public Gender? PatientGender { get; set; }
 
