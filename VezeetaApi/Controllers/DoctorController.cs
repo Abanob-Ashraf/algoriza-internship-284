@@ -210,14 +210,22 @@ namespace VezeetaApi.Controllers
         {
             var doctor = UnitOfWork.GetRepository<Doctor>();
 
-            var deActivetedDoctor = await doctor.FindAsync(c => c.Id == id);
+            var deActivetedDoctor = await doctor.FindAllAsyncPaginated(c => c.Id == id);
 
             if (deActivetedDoctor is null)
                 return NotFound();
 
-            doctor.DeActiveAndActive(deActivetedDoctor);
-            await UnitOfWork.SaveChangesAsync();
-            return Ok();
+            var data = deActivetedDoctor.Where(c => c.Appointments.Select(v => v.Status).Contains(Status.pending)).Any();
+
+            var onedeActivetedDoctor = deActivetedDoctor.SingleOrDefault();
+
+            if (!data)
+            {
+                doctor.DeActiveAndActive(onedeActivetedDoctor);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
         }
 
         [Authorize(Roles = "Admin")]
