@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VezeetaApi.Domain.Dtos
 {
@@ -13,8 +14,11 @@ namespace VezeetaApi.Domain.Dtos
             get { return $"{Email}"; }
         }
 
+        [RegularExpression(@"^(010|011|012|015)\d{8}$", ErrorMessage = "start with 010 | 011 | 012 | 015 and max 11 Diget")]
+        [MaxLength(11)]
         public string? PhoneNumber { get; set; }
 
+        [DataType(DataType.EmailAddress, ErrorMessage = "Invalid Email Address")]
         public string? Email { get; set; }
 
         public List<string>? Roles { get; set; }

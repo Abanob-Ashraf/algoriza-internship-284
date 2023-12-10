@@ -8,13 +8,19 @@ namespace VezeetaApi.Domain.Dtos
         public string? Image { get; set; }
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
+
+        [RegularExpression(@"^(010|011|012|015)\d{8}$", ErrorMessage = "start with 010 | 011 | 012 | 015 and max 11 Diget")]
+        [MaxLength(11)]
         public string PhoneNumber { get; set; } = null!;
 
         public string? UserName
         {
             get { return $"{Email}"; }
         }
+
+        [DataType(DataType.EmailAddress, ErrorMessage = "Invalid Email Address")]
         public string Email { get; set; } = null!;
+
         public string Password { get; set; } = null!;
 
         [Compare("Password")]
