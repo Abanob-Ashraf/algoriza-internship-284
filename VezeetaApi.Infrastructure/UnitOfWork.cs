@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Services;
-using VezeetaApi.Domain.Repositories;
 using VezeetaApi.Infrastructure.Data;
-using VezeetaApi.Infrastructure.RepoServices;
 using VezeetaApi.Infrastructure.Repositories;
 
 namespace VezeetaApi.Infrastructure
@@ -12,13 +10,11 @@ namespace VezeetaApi.Infrastructure
     {
         readonly VezeetaDbContext DbContext;
         private Dictionary<Type, object> Repositories;
-        public IAppointmentRepo AppointmentRepo { get; private set; }
 
         public UnitOfWork(VezeetaDbContext dbContext)
         {
             DbContext = dbContext;
             Repositories = new Dictionary<Type, object>();
-            AppointmentRepo = new AppointmentRepoService(DbContext);
         }
 
         public IBaseService<T> GetRepository<T>() where T : class

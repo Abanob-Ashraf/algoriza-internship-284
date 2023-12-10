@@ -1,5 +1,4 @@
 ﻿using VezeetaApi.Domain.Services;
-using VezeetaApi.Domain.Repositories;
 
 namespace VezeetaApi.Domain
 {
@@ -7,7 +6,6 @@ namespace VezeetaApi.Domain
     {
         IBaseService<T> GetRepository<T>() where T : class;
 
-        IAppointmentRepo AppointmentRepo { get; }
         Task<int> SaveChangesAsync();
     }
 }
