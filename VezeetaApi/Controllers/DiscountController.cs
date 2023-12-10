@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
@@ -6,6 +7,7 @@ using VezeetaApi.Domain.Models;
 
 namespace VezeetaApi.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class DiscountController : ControllerBase
@@ -51,38 +53,47 @@ namespace VezeetaApi.Controllers
         [HttpPut("UpdateDiscount")]
         public async Task<IActionResult> UpdateAsync(DiscountDTO discountDTO)
         {
-            var discount = await UnitOfWork.GetRepository<Discount>().FindAsync(c => c.Id == discountDTO.Id);
+            var discount = UnitOfWork.GetRepository<Discount>();
 
-            if (discount is null)
+            var updatedDiscount = await discount.FindAllAsyncPaginated(c => c.Id == discountDTO.Id);
+
+            if (updatedDiscount is null)
                 return NotFound(discountDTO);
 
-            discount.DiscountCode = discountDTO.DiscountCode;
-            discount.NumOfCompletedRequests = discountDTO.NumOfCompletedRequests;
-            discount.DiscountType = discountDTO.DiscountType;
-            discount.DiscountValue = discountDTO.DiscountValue;
+            var usedDiscount = updatedDiscount.SingleOrDefault().Appointments.Any();
 
-            UnitOfWork.GetRepository<Discount>().Update(discount);
+            if (!usedDiscount)
+            {
+                var data = updatedDiscount.SingleOrDefault();
+                data.DiscountCode = discountDTO.DiscountCode;
+                data.NumOfCompletedRequests = discountDTO.NumOfCompletedRequests;
+                data.DiscountType = discountDTO.DiscountType;
+                data.DiscountValue = discountDTO.DiscountValue;
 
-            await UnitOfWork.SaveChangesAsync();
+                discount.Update(data);
 
-            var result = Mapper.Map<DiscountDTO>(discount);
-            return Ok(result);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
         }
 
         [HttpPut("DeActiveAndActive/{id}")]
         public async Task<IActionResult> DeActiveAndActiveAsync(int id)
         {
-            var discount = await UnitOfWork.GetRepository<Discount>().FindAsync(c => c.Id == id);
+            var discount = UnitOfWork.GetRepository<Discount>();
 
-            if (discount is null)
+            var deActiveDiscount = await discount.FindAsync(c => c.Id == id);
+
+            if (deActiveDiscount is null)
                 return NotFound();
 
-            UnitOfWork.GetRepository<Discount>().DeActiveAndActive(discount);
+            discount.DeActiveAndActive(deActiveDiscount);
             await UnitOfWork.SaveChangesAsync();
             return Ok();
         }
 
-        [HttpDelete("DeleteSpecializion")]
+        [HttpDelete("DeleteDiscount")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var discount = UnitOfWork.GetRepository<Discount>().Delete(id);
@@ -92,8 +103,7 @@ namespace VezeetaApi.Controllers
 
             await UnitOfWork.SaveChangesAsync();
 
-            var result = Mapper.Map<DiscountDTO>(discount);
-            return Ok(result);
+            return Ok();
         }
     }
 }
