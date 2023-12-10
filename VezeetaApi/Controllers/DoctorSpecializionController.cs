@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
