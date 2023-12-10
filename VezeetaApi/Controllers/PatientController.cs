@@ -106,7 +106,7 @@ namespace VezeetaApi.Controllers
 
             var patientAppointmentCompleted = patient.Where(c => c.Appointments.Select(v => v.Status).Contains(Status.completed)).Count();
 
-            var UsedDiscountCode = patient.SingleOrDefault().Appointments.Any(v => v.DiscountId == appointmentDTO.DiscountId);
+            var UsedDiscountCode = patient.SingleOrDefault().Appointments.Any();
 
             var discount = await UnitOfWork.GetRepository<Discount>().FindAllAsyncPaginated(c => c.Id == appointmentDTO.DiscountId);
 
