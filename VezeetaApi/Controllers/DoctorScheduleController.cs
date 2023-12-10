@@ -58,27 +58,25 @@ namespace VezeetaApi.Controllers
         {
             var doctorSchedule = UnitOfWork.GetRepository<DoctorSchedule>();
             
-            var updatedDoctorScheduleList = (await doctorSchedule.FindAllAsyncPaginated(c => c.Id == doctorScheduleDTO.Id)).ToList();
+            var updatedDoctorSchedule = await doctorSchedule.FindAllAsyncPaginated(c => c.Id == doctorScheduleDTO.Id);
 
-            if (updatedDoctorScheduleList is null)
+            if (updatedDoctorSchedule is null)
                 return NotFound();
 
-            var data = updatedDoctorScheduleList
+            var data = updatedDoctorSchedule
                 .Where(c => c.DoctorIdNavigation.Appointments.Select(v => v.Status).Contains(Status.pending)).Any();
 
+            var oneDoctor = updatedDoctorSchedule.SingleOrDefault();
 
             if (!data)
             {
-                foreach (var updatedDoctorSchedule in updatedDoctorScheduleList)
-                {
-                    updatedDoctorSchedule.Amount = doctorScheduleDTO.Amount;
-                    updatedDoctorSchedule.ScheduleDay = doctorScheduleDTO.ScheduleDay;
-                    updatedDoctorSchedule.ScheduleTime = doctorScheduleDTO.ScheduleTime;
-                    updatedDoctorSchedule.DoctorId = doctorScheduleDTO.DoctorId;
 
-                    doctorSchedule.Update(updatedDoctorSchedule);
-                }
+                oneDoctor.Amount = doctorScheduleDTO.Amount;
+                oneDoctor.ScheduleDay = doctorScheduleDTO.ScheduleDay;
+                oneDoctor.ScheduleTime = doctorScheduleDTO.ScheduleTime;
+                oneDoctor.DoctorId = doctorScheduleDTO.DoctorId;
 
+                doctorSchedule.Update(oneDoctor);
                 await UnitOfWork.SaveChangesAsync();
                 return Ok();
             }
@@ -89,14 +87,24 @@ namespace VezeetaApi.Controllers
         [HttpPut("DeActiveAndActive/{id}")]
         public async Task<IActionResult> DeActiveAndActiveAsync(int id)
         {
-            var doctorSchedule = await UnitOfWork.GetRepository<DoctorSchedule>().FindAsync(c => c.Id == id);
+            var doctorSchedule = UnitOfWork.GetRepository<DoctorSchedule>();
 
-            if (doctorSchedule is null)
+            var deActivedoctorSchedule = await doctorSchedule.FindAllAsyncPaginated(c => c.Id == id);
+
+            if (deActivedoctorSchedule is null)
                 return NotFound();
 
-            UnitOfWork.GetRepository<DoctorSchedule>().DeActiveAndActive(doctorSchedule);
-            await UnitOfWork.SaveChangesAsync();
-            return Ok();
+            var data = deActivedoctorSchedule
+                .Where(c => c.DoctorIdNavigation.Appointments.Select(v => v.Status).Contains(Status.pending)).Any();
+
+            var doctor = deActivedoctorSchedule.SingleOrDefault();
+            if (!data)
+            {
+                doctorSchedule.DeActiveAndActive(doctor);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
         }
 
         [HttpDelete("DeleteDoctorSchedule")]
