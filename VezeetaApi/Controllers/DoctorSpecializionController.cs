@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
 
 namespace VezeetaApi.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     [ApiController]
     public class DoctorSpecializionController : ControllerBase
@@ -69,29 +72,47 @@ namespace VezeetaApi.Controllers
         [HttpPut("DeActiveAndActive/{id}")]
         public async Task<IActionResult> DeActiveAndActiveAsync(int id)
         {
-            var doctorSpecializion = await UnitOfWork.GetRepository<DoctorSpecializion>().FindAsync(c => c.Id == id);
+            var doctorSpecializion = UnitOfWork.GetRepository<DoctorSpecializion>();
 
-            if (doctorSpecializion is null)
+            var deActiveSpec = await doctorSpecializion.FindAllAsyncPaginated(c => c.Id == id);
+
+            if (deActiveSpec is null)
                 return NotFound();
 
-            UnitOfWork.GetRepository<DoctorSpecializion>().DeActiveAndActive(doctorSpecializion);
-            await UnitOfWork.SaveChangesAsync();
-            return Ok();
+            var usedSpec = deActiveSpec.SingleOrDefault().Doctors.Any();
+
+
+            if (!usedSpec)
+            {
+                var data = deActiveSpec.SingleOrDefault();
+                doctorSpecializion.DeActiveAndActive(data);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+
+            return BadRequest();
         }
 
         [HttpDelete("DeleteSpecializion")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var doctorSpecializion = UnitOfWork.GetRepository<DoctorSpecializion>().Delete(id);
+            var doctorSpecializion = UnitOfWork.GetRepository<DoctorSpecializion>();
 
-            if (doctorSpecializion is null)
+            var deletedSpec = await doctorSpecializion.FindAllAsyncPaginated(c => c.Id == id);
+
+            if (deletedSpec is null)
                 return NotFound();
 
-            await UnitOfWork.SaveChangesAsync();
+            var usedSpec = deletedSpec.SingleOrDefault().Doctors.Any();
 
-            var result = Mapper.Map<DoctorSpecializionDTO>(doctorSpecializion);
-            return Ok(result);
+
+            if (!usedSpec)
+            {
+                doctorSpecializion.Delete(id);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
         }
-
     }
 }
