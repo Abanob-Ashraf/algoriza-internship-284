@@ -1,11 +1,16 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Linq;
+using System.Numerics;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
 using VezeetaApi.Domain.Models;
 
 namespace VezeetaApi.Controllers
 {
+    [Authorize(Roles = "Admin, Doctor")]
     [Route("api/[controller]")]
     [ApiController]
     public class DoctorScheduleController : ControllerBase
@@ -51,22 +56,34 @@ namespace VezeetaApi.Controllers
         [HttpPut("UpdateDoctorSchedule")]
         public async Task<IActionResult> UpdateAsync(DoctorScheduleDTO doctorScheduleDTO)
         {
-            var doctorSchedule = await UnitOfWork.GetRepository<DoctorSchedule>().FindAsync(c => c.Id == doctorScheduleDTO.Id);
+            var doctorSchedule = UnitOfWork.GetRepository<DoctorSchedule>();
+            
+            var updatedDoctorScheduleList = (await doctorSchedule.FindAllAsyncPaginated(c => c.Id == doctorScheduleDTO.Id)).ToList();
 
-            if (doctorSchedule is null)
+            if (updatedDoctorScheduleList is null)
                 return NotFound();
 
-            doctorSchedule.Amount = doctorScheduleDTO.Amount;
-            doctorSchedule.ScheduleDay = doctorScheduleDTO.ScheduleDay;
-            doctorSchedule.ScheduleTime = doctorScheduleDTO.ScheduleTime;
-            doctorSchedule.DoctorId = doctorScheduleDTO.DoctorId;
+            var data = updatedDoctorScheduleList
+                .Where(c => c.DoctorIdNavigation.Appointments.Select(v => v.Status).Contains(Status.pending)).Any();
 
-            UnitOfWork.GetRepository<DoctorSchedule>().Update(doctorSchedule);
 
-            await UnitOfWork.SaveChangesAsync();
+            if (!data)
+            {
+                foreach (var updatedDoctorSchedule in updatedDoctorScheduleList)
+                {
+                    updatedDoctorSchedule.Amount = doctorScheduleDTO.Amount;
+                    updatedDoctorSchedule.ScheduleDay = doctorScheduleDTO.ScheduleDay;
+                    updatedDoctorSchedule.ScheduleTime = doctorScheduleDTO.ScheduleTime;
+                    updatedDoctorSchedule.DoctorId = doctorScheduleDTO.DoctorId;
 
-            var result = Mapper.Map<DoctorScheduleDTO>(doctorSchedule);
-            return Ok(result);
+                    doctorSchedule.Update(updatedDoctorSchedule);
+                }
+
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
+
         }
 
         [HttpPut("DeActiveAndActive/{id}")]
@@ -85,15 +102,22 @@ namespace VezeetaApi.Controllers
         [HttpDelete("DeleteDoctorSchedule")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            var doctor = UnitOfWork.GetRepository<DoctorSchedule>().Delete(id);
+            var doctorSchedule = UnitOfWork.GetRepository<DoctorSchedule>();
+            var deletedDoctorSchedule = await doctorSchedule.FindAllAsyncPaginated(c => c.Id == id);
 
-            if (doctor is null)
+            if (deletedDoctorSchedule is null)
                 return NotFound();
 
-            await UnitOfWork.SaveChangesAsync();
+            var data = deletedDoctorSchedule
+                .Where(c => c.DoctorIdNavigation.Appointments.Select(v => v.Status).Contains(Status.pending)).Any();
 
-            var result = Mapper.Map<DoctorScheduleDTO>(doctor);
-            return Ok(result);
+            if (!data)
+            {
+                doctorSchedule.Delete(id);
+                await UnitOfWork.SaveChangesAsync();
+                return Ok();
+            }
+            return BadRequest();
         }
     }
 }
