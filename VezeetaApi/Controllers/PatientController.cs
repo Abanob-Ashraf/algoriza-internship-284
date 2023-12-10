@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
 using VezeetaApi.Domain;
 using VezeetaApi.Domain.Dtos;
+using VezeetaApi.Domain.Dtos.CustomDtos;
 using VezeetaApi.Domain.Models;
+using VezeetaApi.Domain.Services;
 
 namespace VezeetaApi.Controllers
 {
@@ -13,22 +17,36 @@ namespace VezeetaApi.Controllers
         readonly IUnitOfWork UnitOfWork;
         readonly IMapper Mapper;
 
-        public PatientController(IUnitOfWork unitOfWork, IMapper mapper)
+        public PatientController(IUnitOfWork unitOfWork, IMapper mapper, IAuthService authService)
         {
             UnitOfWork = unitOfWork;
             Mapper = mapper;
         }
 
-        [HttpGet("GetAllPatients")]
-        public async Task<IActionResult> GetAllAsync()
+        [Authorize(Roles = "Admin")]
+        [HttpPut("getAllPatients")]
+        public async Task<IActionResult> GetAllPatients(SearchDTO d)
         {
-            var patients = await UnitOfWork.GetRepository<Patient>().GetAllAsync();
-            if (patients == null)
-                return NotFound();
-            var result = Mapper.Map<IEnumerable<PatientDTO>>(patients);
-            return Ok(result);
+            var patient = await UnitOfWork.GetRepository<Patient>()
+                .FindAllAsyncPaginated(c =>
+                    (d.FullName == null ? true : c.PatientFullName.Contains(d.FullName)) &&
+                    (d.Email == null ? true : c.PatientEmail == d.Email));
+
+            var data = patient.Select(c => new
+            {
+                c.Id,
+                c.PatientImage,
+                c.PatientFullName,
+                c.PatientEmail,
+                c.PatientPhone,
+                c.PatientGender,
+                c.PatientBirthDate,
+            }).ToList();
+
+            return Ok(data);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetPatient/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -39,65 +57,120 @@ namespace VezeetaApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("AddNewPatient")]
-        public async Task<IActionResult> AddAsync(PatientDTO patientDTO)
+        [Authorize(Roles = "Admin, Patient")]
+        [HttpPut("getAllDoctors")]
+        public async Task<IActionResult> GetAllDoctors(SearchDTO d)
         {
-            var newPatient = Mapper.Map<Patient>(patientDTO);
-            await UnitOfWork.GetRepository<Patient>().AddAsync(newPatient);
+            var doctors = await UnitOfWork.GetRepository<Doctor>()
+                .FindAllAsyncPaginated(c =>
+                    (d.FullName == null ? true : c.DoctorFullName.Contains(d.FullName)) &&
+                    (d.Email == null ? true : c.DocEmail == d.Email) &&
+                    (d.SpecializationName == null ? true : c.SpecializationIdNavigation.SpecializationName == d.SpecializationName));
+
+            var data = doctors.Select(c => new
+            {
+                c.Id,
+                c.DocImage,
+                c.DoctorFullName,
+                c.DocEmail,
+                c.DocPhone,
+                c.DocGender,
+                c.SpecializationIdNavigation.SpecializationName,
+                DoctorSchedules = c.DoctorSchedules
+                    .GroupBy(v => v.ScheduleDay)
+                    .Select(b => new
+                    {
+                        Day = b.Key,
+                        Schedules = b.Select(v => new
+                        {
+                            Time = v.ScheduleTime,
+                            v.Amount,
+                            v.IsActive
+                        }).ToList()
+                    }).ToList()
+            }).ToList();
+
+            return Ok(data);
+        }
+
+        [Authorize(Roles = "Admin, Patient")]
+        [HttpPost("Booking")]
+        public async Task<IActionResult> BookingAppointment(AppointmentDTO appointmentDTO)
+        {
+            var userId = User.Claims.Where(c => c.Type == "DbUserId").FirstOrDefault()?.Value;
+            var PatientId = int.Parse(userId);
+
+            appointmentDTO.PatientId = PatientId;
+
+            var newAppointment = Mapper.Map<Appointment>(appointmentDTO);
+            await UnitOfWork.GetRepository<Appointment>().AddAsync(newAppointment);
             await UnitOfWork.SaveChangesAsync();
             return Ok();
         }
 
-        [HttpPut("UpdatePatient")]
-        public async Task<IActionResult> UpdateAsync(PatientDTO patientDTO)
+        [Authorize(Roles = "Admin, Patient")]
+        [HttpGet("PatientAppointments")]
+        public async Task<IActionResult> PatientAppointments()
         {
-            var patient = await UnitOfWork.GetRepository<Patient>().FindAsync(c => c.Id == patientDTO.Id);
+            var userId = User.Claims.Where(c => c.Type == "DbUserId").FirstOrDefault()?.Value;
+            var PatientId = int.Parse(userId);
 
-            if (patient is null)
-                return NotFound();
+            var appointments = await UnitOfWork.GetRepository<Appointment>()
+                .FindAllAsyncPaginated(c => c.PatientId == PatientId);
 
-            patient.PatientImage = patientDTO.PatientImage;
-            patient.PatientFirstName = patientDTO.PatientFirstName;
-            patient.PatientLastName = patientDTO.PatientLastName;
-            patient.PatientBirthDate = patientDTO.PatientBirthDate;
-            patient.PatientGender = patientDTO.PatientGender;
-            patient.PatientPhone = patientDTO.PatientPhone;
-            patient.PatientEmail = patientDTO.PatientEmail;
-            patient.PatientPassword = patientDTO.PatientPassword;
+            var data = appointments.Select(c =>
+            {
+                var price = c.DoctorIdNavigation.DoctorSchedules
+                    .Where(v =>
+                    (c.ResevationDate.DayOfWeek.Equals((DayOfWeek)v.ScheduleDay)) &&
+                    (c.ResevationDate.TimeOfDay == v.ScheduleTime))
+                    .Select(v => v.Amount).SingleOrDefault();
 
-            UnitOfWork.GetRepository<Patient>().Update(patient);
 
-            await UnitOfWork.SaveChangesAsync();
+                var finalPrice = c.DiscountIdNavigation.DiscountType.Equals(DiscountType.Value) ?
+                                     price - c.DiscountIdNavigation.DiscountValue :
+                                    price - (price * c.DiscountIdNavigation.DiscountValue / 100);
 
-            var result = Mapper.Map<PatientDTO>(patient);
-            return Ok(result);
+                return new
+                {
+                    c.DoctorIdNavigation.DocImage,
+                    c.DoctorIdNavigation.DoctorFullName,
+                    c.DoctorIdNavigation.SpecializationIdNavigation.SpecializationName,
+                    c.ResevationDate.Year,
+                    c.ResevationDate.Month,
+                    c.ResevationDate.Day,
+                    c.ResevationDate.DayOfWeek,
+                    c.ResevationDate.TimeOfDay,
+                    price,
+                    c.DiscountIdNavigation.DiscountCode,
+                    finalPrice,
+                    c.Status,
+                };
+            }).ToList();
+
+            return Ok(data);
+
         }
 
-        [HttpPut("DeActiveAndActive/{id}")]
-        public async Task<IActionResult> DeActiveAndActiveAsync(int id)
+        [Authorize(Roles = "Admin, Patient")]
+        [HttpPut("Cancel")]
+        public async Task<IActionResult> CancelingAppointment(int AppointmentId)
         {
-            var patient = await UnitOfWork.GetRepository<Patient>().FindAsync(c => c.Id == id);
+            var appointment = UnitOfWork.GetRepository<Appointment>();
 
-            if (patient is null)
+            var UpdatedAppointment = await appointment.FindAsync(c => c.Id == AppointmentId);
+
+            if (UpdatedAppointment is null)
                 return NotFound();
 
-            UnitOfWork.GetRepository<Patient>().DeActiveAndActive(patient);
+            UpdatedAppointment.Status = Status.cancelled;
+
+            appointment.Update(UpdatedAppointment);
+            appointment.DeActiveAndActive(UpdatedAppointment);
+
             await UnitOfWork.SaveChangesAsync();
+
             return Ok();
-        }
-
-        [HttpDelete("DeletePatient")]
-        public async Task<IActionResult> DeleteAsync(int id)
-        {
-            var patient = UnitOfWork.GetRepository<Patient>().Delete(id);
-
-            if (patient is null)
-                return NotFound();
-
-            await UnitOfWork.SaveChangesAsync();
-
-            var result = Mapper.Map<PatientDTO>(patient);
-            return Ok(result);
         }
     }
 }
