@@ -73,13 +73,13 @@ add-migration init
 - Write another command to update the database
 
 ```cmd
-updat
+updat-database
 ```
 - Change the connection string (SQL Server, username & password )
 
 ```json
  "ConnectionStrings": {
-    "DefaultConnection": "Data Source=[Server Name];Initial Catalog=Clinical_DB;User ID=[Sql server Username]];Password=[Sql server Password];Integrated Security=True"
+    "DefaultConnection": "Data Source=[Server Name];Initial Catalog=[DataBase Name];User ID=[Sql server Username];Password=[Sql server Password];Connect Timeout=30;Encrypt=False;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"
   }
 ```
 the application will run on route 'https://localhost:7097'
