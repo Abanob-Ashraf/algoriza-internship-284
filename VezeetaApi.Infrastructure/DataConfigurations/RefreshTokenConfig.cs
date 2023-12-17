@@ -8,16 +8,32 @@ namespace VezeetaApi.Infrastructure.DataConfigurations
     {
         public void Configure(EntityTypeBuilder<RefreshToken> entity)
         {
+            entity
+                .ToTable("refreshToken", "token");
+            
+            entity
+                .HasKey(e => new
+                {
+                    e.Id,
+                    e.AppUserId
+                });
 
-            entity.HasKey(e => new
-            {
-                e.Id,
-                e.AppUserId
-            });
+            entity
+                .Property(e => e.Id)
+                .ValueGeneratedOnAdd();
 
-            entity.ToTable("refreshToken", "token");
+            entity
+                .Property(e => e.CreatedDate)
+                .HasColumnType("datetime2")
+                .HasDefaultValueSql("GETDATE()");
 
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity
+                .Property(e => e.UpdatedDate)
+                .HasColumnType("datetime2");
+
+            entity
+                .Property(e => e.IsActive)
+                .IsRequired(true);
         }
     }
 }
