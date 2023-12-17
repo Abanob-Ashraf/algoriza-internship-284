@@ -4,24 +4,31 @@ using VezeetaApi.Domain.Models;
 
 namespace VezeetaApi.Infrastructure.DataConfigurations
 {
-    public class DoctorSpecializionConfig : IEntityTypeConfiguration<DoctorSpecializion>
+    public class DoctorSpecializionConfig : BaseConfig<DoctorSpecializion, int>
     {
-        public void Configure(EntityTypeBuilder<DoctorSpecializion> entity)
+        public override void Configure(EntityTypeBuilder<DoctorSpecializion> entity)
         {
-            entity.ToTable("doctorSpecializion", "doctor");
+            entity
+                .ToTable("doctorSpecializion", "doctor");
 
-            entity.Property(e => e.SpecializationName)
+            entity
+                .Property(e => e.SpecializationName)
                 .HasMaxLength(50)
                 .IsRequired(true)
                 .IsUnicode(false);
 
-            entity.HasIndex(e => e.SpecializationName).IsUnique(true);
+            entity
+                .HasIndex(e => e.SpecializationName)
+                .IsUnique(true);
 
-            entity.HasData(new DoctorSpecializion()
-            {
-                Id = 1,
-                SpecializationName = "Neurology"
-            });
+            entity
+                .HasData(new DoctorSpecializion()
+                {
+                    Id = 1,
+                    SpecializationName = "Neurology"
+                });
+
+            base.Configure(entity);
         }
     }
 }
