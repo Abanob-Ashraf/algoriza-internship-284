@@ -35,19 +35,6 @@ namespace VezeetaApi.Infrastructure.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-            {
-                var baseType = entityType.ClrType.BaseType;
-                if (baseType != null && baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(BaseEntity<>))
-                {
-                    var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType);
-                    entityTypeBuilder.HasKey("Id");
-                    entityTypeBuilder.Property("CreatedDate").HasColumnType("datetime2").HasDefaultValueSql("GETDATE()");
-                    entityTypeBuilder.Property("UpdatedDate").HasColumnType("datetime2");
-                    entityTypeBuilder.Property("IsActive").IsRequired(true);
-                }
-            }
-
             new DoctorSpecializionConfig().Configure(modelBuilder.Entity<DoctorSpecializion>());
 
             new DoctorConfig().Configure(modelBuilder.Entity<Doctor>());
