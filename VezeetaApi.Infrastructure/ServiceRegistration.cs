@@ -18,10 +18,10 @@ namespace VezeetaApi.Infrastructure
             services.AddScoped<IInitializeDefaultData, InitializeDefaultDataRepository>();
             services.AddHostedService<InitializeDefaultDataService>();
 
-            services.AddScoped<FilterTimeDTO>();
-
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IBaseService<>), typeof(BaseRepository<>));
+
+            services.AddScoped<FilterTimeDTO>();
 
             services.AddAutoMapper(Assembly.GetAssembly(typeof(MapperProfile)));
         }
