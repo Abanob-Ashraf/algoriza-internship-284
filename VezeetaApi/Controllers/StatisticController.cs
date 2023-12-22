@@ -54,7 +54,7 @@ namespace VezeetaApi.Controllers
                 Cancelled = filteredAppointment.Count(c => c.Status == Status.cancelled),
             };
 
-            return Ok();
+            return Ok(data);
         }
 
         [HttpGet("TopFiveSpecializations")]
