@@ -1,6 +1,6 @@
 # Algoriza-internship-284
 
-Vezeeta Website (Endpoints)
+Clinic Appointments Management System (Endpoints)
 
 
 ## About Clinic System Website
@@ -16,10 +16,10 @@ Patient Password = Patient$123
 
 ## How to use it :
 
-The Vezeeta Website (Endpoints) is designed to be user-friendly and intuitive, making it easy for both healthcare providers and patients to navigate. Here's a step-by-step guide on how to use the Endpoints effectively:
+Clinic Appointments Management System (Endpoints) is designed to be user-friendly and intuitive, making it easy for both healthcare providers and patients to navigate. Here's a step-by-step guide on how to use the Endpoints effectively:
 
 - You will need the latest Visual Studio 2022 and the latest .NET Core 7.
-- You will need  MS SQL Server
+- You will need  an MS SQL Server
 - Make sure from the configuration in the **AppSettings.json** file that meets the application features :
     (**JWT** for Authantication and Authorization, **Email** Configuration Service)
 
@@ -47,7 +47,7 @@ The Vezeeta Website (Endpoints) is designed to be user-friendly and intuitive, m
 ```
 - And you can make Your key from here  'https://8gwifi.org/jwsgen.jsp'
 
-- Install Packages from **NuGet Pakage Manager** Or **Package Manager Console**
+- Install Packages from **NuGet Package Manager** Or **Package Manager Console**
 ```
     Install-Package AutoMapper.Extensions.Microsoft.DependencyInjection
     Install-Package MailKit
@@ -73,7 +73,7 @@ add-migration init
 - Write another command to update the database
 
 ```cmd
-updat-database
+update-database
 ```
 - Change the connection string (SQL Server, username & password )
 
@@ -98,12 +98,12 @@ the application will run on route 'https://localhost:7097'
   Healthcare providers can manage appointments efficiently.
 
 - Notifications:
-  Automated notifications are sent to Doctors with there Email and Password.
+  Automated notifications are sent to Doctors with their Email and Password.
 
 - User Roles:
 Different user roles, including patients, healthcare providers, and administrators.
 
-- Administrator Controls Panal:
+- Administrator Controls Panel:
    User management for adding and managing healthcare professionals.
    Customization options to tailor the system to the clinic's specific needs.
    Add Discount Coupons.
