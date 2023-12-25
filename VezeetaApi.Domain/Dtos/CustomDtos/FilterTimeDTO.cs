@@ -11,7 +11,6 @@ namespace VezeetaApi.Domain.Dtos.CustomDtos
     {
         public Time TimeId { get; set; }
 
-
         public DateTime CurrentDate { get; set; } = DateTime.UtcNow;
 
         private DateTime LastDay
@@ -37,18 +36,14 @@ namespace VezeetaApi.Domain.Dtos.CustomDtos
 
         public DateTime FilterByTime(Time TimeId)
         {
-            switch (TimeId)
+            return TimeId switch
             {
-                case Time.Day:return LastDay;
-
-                case Time.Week: return LastWeek;
-
-                case Time.Month:return LastMonth;
-
-                case Time.Year:return LastYear;
-
-                default: return CurrentDate;
-            }
+                Time.Day => LastDay,
+                Time.Week => LastWeek,
+                Time.Month => LastMonth,
+                Time.Year => LastYear,
+                _ => CurrentDate,
+            };
         }
     }
 
